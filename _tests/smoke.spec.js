@@ -49,18 +49,18 @@ describe('memoize-proxy', () => {
 
   it('isThisPure', () => {
     var array = [1, 2, 3];
-    const fun1 = (a) => ({result: a.map(a => a) });
+    const fun1 = (a) => ({result: a.map(a => a)});
     expect(isThisPure(() => fun1(array))).to.be.false;
 
-    const fun2 = (a) => ({result:a});
+    const fun2 = (a) => ({result: a});
     expect(isThisPure(() => fun2(array))).to.be.true;
 
-    const fun3 = memoize(a => ({result: a.map(a => a) }));
+    const fun3 = memoize(a => ({result: a.map(a => a)}));
     expect(isThisPure(() => fun3(array))).to.be.true;
   });
 
   it('shouldBePure', () => {
-    const A = [1,2,3];
+    const A = [1, 2, 3];
     const fun1 = (a) => ({key1: a.map(a => a)});
     const test1 = shouldBePure(fun1);
     test1(A);
@@ -72,8 +72,10 @@ describe('memoize-proxy', () => {
     test2(A);
     test2(A);
     expect(test2.isPure).to.be.true;
-    test2([1,2,3]);
-    expect(test2.isPure).to.be.false;
+    test2([1, 2, 3]);
+    expect(test2.isPure).to.be.true;
+    test2([1, 2, 3]);
+    expect(test2.isPure).to.be.true;
 
     const fun3 = memoize(a => ({key1: a.map(a => a)}));
     const test3 = shouldBePure(fun3);
@@ -84,5 +86,16 @@ describe('memoize-proxy', () => {
     expect(test3.isPure).to.be.true;
     test3([1, 2, 4]);
     expect(test3.isPure).to.be.true;
+
+    const fun4 = ({a}) => ({key1: a});
+    const test4 = shouldBePure(fun4);
+    test4({a: A});
+    test4({a: A});
+    expect(test4.isPure).to.be.true;
+    test2({a: [1, 2, 3]});
+    expect(test4.isPure).to.be.true;
+    test2({a: [1, 2, 3]});
+    expect(test4.isPure).to.be.true;
+
   });
 });

@@ -20,7 +20,8 @@ function buildCompare(test) {
       for (let j = 0; j < args.length; ++j) {
         const a = args[j];
         const b = lineArgs[j];
-        if (a === b || (typeof a === 'object' && proxyCompare(a, b, lineAffected[j][test]))) {
+        const affected = lineAffected[j][test];
+        if (a === b || (typeof a === 'object' && affected.length > 0 && proxyCompare(a, b, affected))) {
           //pass
         } else {
           found = null;

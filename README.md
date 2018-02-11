@@ -66,6 +66,14 @@ const mapStateToProps = shouldBePure((state, props) => {
 ```
 `shouldBePure` will deactive itself in `production` env. Use `shallBePure` if you need it always enabled.
   
+## Keep in mind
+Sometimes you have to "explain" which variable should be tract.
+```js
+memoized ( state => state ? something : state, N) // bad
+memoized ( state => state ? something : {...state}, N) // good (actually way bad
+```  
+Where `N` - number of different combinations state could form. {...state} will enumerate all the keys for
+the memoize-one, and make the magic - pure and consistent results.  
 ## Speed
 
 Uses `ES6 Proxy` underneath to detect used branches of a state (as `MobX`). 
