@@ -37,7 +37,7 @@ function buildCompare(test) {
 }
 
 function callIn(cache, args, func, memoizationDepth) {
-  const proxies = args.map(state => typeof state === 'object' ? proxyState(state) : state);
+  const proxies = args.map(state => state && typeof state === 'object' ? proxyState(state) : state);
   const newArgs = proxies.map(({state}) => state);
   const result = func(...newArgs);
   const affected = proxies.map(({affected}) => [collectShallows(affected), collectValuables(affected)]);

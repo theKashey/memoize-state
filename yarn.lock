@@ -1408,9 +1408,9 @@ process-nextick-args@~2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/process-nextick-args/-/process-nextick-args-2.0.0.tgz#a37d732f4271b4ab1ad070d35508e8290788ffaa"
 
-proxyequal@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/proxyequal/-/proxyequal-1.0.2.tgz#3b76d3b3eceef4b95f0f7d3ebf8852bcd9200f6c"
+proxyequal@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/proxyequal/-/proxyequal-1.0.3.tgz#447831a5e76c9bfb574e362af35027bc25e3b400"
   dependencies:
     search-trie "^1.0.0"
 
