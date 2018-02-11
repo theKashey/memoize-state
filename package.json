@@ -1,0 +1,33 @@
+{
+  "name": "memoize-state",
+  "version": "1.0.0",
+  "description": "The right memoization for redux's mapStateToProps",
+  "main": "lib/index.js",
+  "types": "memoize.d.ts",
+  "scripts": {
+    "test": "npm run test:pick -- '_tests/**/*spec.js'",
+    "test:pick": "BABEL_ENV=cjs mocha --compilers js:babel-core/register",
+    "build": "babel src -d lib",
+    "prepublish": "npm run build"
+  },
+  "author": "Anton Korzunov (thekashey@gmail.com)",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "chai": "^4.1.2",
+    "mocha": "^4.0.1",
+    "sinon": "^4.3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theKashey/memoize-state.git"
+  },
+  "bugs": {
+    "url": "https://github.com/theKashey/memoize-state/issues"
+  },
+  "homepage": "https://github.com/theKashey/memoize-state#readme",
+  "dependencies": {
+    "proxyequal": "^1.0.2"
+  }
+}
