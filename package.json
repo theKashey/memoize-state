@@ -28,6 +28,6 @@
   },
   "homepage": "https://github.com/theKashey/memoize-state#readme",
   "dependencies": {
-    "proxyequal": "^1.0.6"
+    "proxyequal": "^1.1.1"
   }
 }

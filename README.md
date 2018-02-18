@@ -82,12 +82,8 @@ const mapStateToProps = shouldBePure((state, props) => {
 `shouldBePure` will deactivate itself in `production` env. Use `shallBePure` if you need it always enabled.
 
 ## You said UNSAFE???
-Memoize-state could break the way your application works, if you will use additional memoization inside a wrapped function.
-The wrapped function __have to be pure__, a more __pure__ than usual -
-
-> __No side effects. NO SIDE EFFECTS AT ALL!. Including memoization__
-
-In case of internal memoization memoize-state could remove _internally memoized_ branches, and does not reflects changes made inside
+Not all functions could be `safely` memoized. Just not all of them.
+The wrapped function __have to be pure__.
 ```js
 let cache = 0;
 const func = (state) => (cache || cache = state.a);
@@ -101,31 +97,21 @@ It's easy to fix - `memoize(func, { safe: true })`, but func will be __called tw
 
 In case of internal memoization safe-memoize will deactivate itself.
   
-> Lodash memoize will access a few branches of on object, making memoize state thinking that you need them, not the object.
-It will break the stuff.  
+> Check performed only twice. Once on execution, and once on first cached result.
+In both cases wrapped function should return the "same" result.   
   
 ### Can I memoize-state memoized-state function?
-Yes, you could. It's aways depends.
-
-There is always one rule - you shall not memoize one branch one time, and access it without memoization second time.
-memoize-state will always report if something goes wrong (in safe mode).
+Yes, you could. 
   
-## Keep in mind
-Sometimes you have to "explain" which variable should be tract.
-```js
-memoized ( state => state ? something : state, N) // bad
-memoized ( state => state ? something : {...state}, N) // good (actually way bad
-```  
-Where `N` - number of different combinations state could form. {...state} will enumerate all the keys for
-the memoize-one, and make the magic - pure and consistent results.  
 ## Speed
 
-Uses `ES6 Proxy` underneath to detect used branches of a state (as `MobX`). 
+Uses `ES6 Proxy` underneath to detect used branches of a state (as `MobX`).
+Removes all the magic from result value. 
 Should be slower than "manual" __reselect__ors, but faster than anything else. 
 
 ## Compatibility
 
-__NOT__ compatible with __IE11__. One need to provide a proxy polyfill to make this work.
+__NOT__ compatible with __IE11__. One have to provide a proxy polyfill to make this work.
 See https://github.com/GoogleChrome/proxy-polyfill
 
 # Licence

@@ -1,4 +1,4 @@
-import {proxyCompare, collectShallows, collectValuables, proxyState, deproxify, isProxyfied} from 'proxyequal';
+import {proxyCompare, collectShallows, collectValuables, proxyState, deproxify, isProxyfied, getProxyKey} from 'proxyequal';
 
 const emptyArray = [];
 
@@ -46,24 +46,52 @@ function buildCompare(test) {
   }
 }
 
-function deproxifyResult(result) {
-  const object = deproxify(result);
-  if (typeof object === 'object' && !isProxyfied(result)) {
-    const sub = Array.isArray(object) ? [] : {};
-    for (let i in object) {
-      if (object.hasOwnProperty(i)) {
-        sub[i] = isProxyfied(object[i]) ? deproxify(object[i]) : object[i]
+function addAffected(affected, object) {
+  const key = getProxyKey(object);
+  affected[key.fingerPrint][0].push(key.suffix);
+  affected[key.fingerPrint][1].push(key.suffix);
+}
+
+function deproxifyResult(result, affected, returnPureValue) {
+
+  const isInProxy = isProxyfied(result);
+  if (isInProxy) {
+    addAffected(affected, result);
+    return deproxify(result);
+  }
+
+  if (typeof result === 'object') {
+    const sub = Array.isArray(result) ? [] : {};
+    let altered = false;
+    for (let i in result) {
+      if (result.hasOwnProperty(i)) {
+        const data = result[i];
+        const isInProxy = isProxyfied(data);
+        // if (isInProxy) {
+        //   altered = true;
+        //   addAffected(affected, data);
+        // }
+        const newResult = deproxifyResult(data, affected, false);
+        if(data && newResult){
+          altered = true;
+        }
+
+        sub[i] = newResult || data;
       }
     }
-    return sub;
+    if(altered){
+      return sub
+    }
+    return returnPureValue && result;
   }
-  return object;
+
+  return result;
 }
 
 function callIn(that, cache, args, func, memoizationDepth) {
-  const proxies = args.map(arg => arg && typeof arg === 'object' ? proxyState(arg) : undefined);
+  const proxies = args.map((arg, index) => arg && typeof arg === 'object' ? proxyState(arg, index) : undefined);
   const newArgs = args.map((arg, index) => proxies[index] ? proxies[index].state : arg);
-  const result = deproxifyResult(func.call(that, ...newArgs));
+  const preResult = func.call(that, ...newArgs);
   const affected = proxies
     .map(proxy => {
       if (proxy) {
@@ -72,6 +100,7 @@ function callIn(that, cache, args, func, memoizationDepth) {
       }
       return undefined;
     });
+  const result = deproxifyResult(preResult, affected, true);
   const cacheLine = [args, affected, result];
   if (cache.length < memoizationDepth) {
     cache.push(cacheLine)
@@ -115,6 +144,23 @@ function compareAffected(a, b) {
   return true;
 }
 
+function purityCheck(cache, args, func) {
+  const safeCache = [];
+  callIn(this, safeCache, args, func, 1);
+
+  const preAffected = cache[0][1];
+  const postAffected = safeCache[0][1];
+
+  if (!compareAffected(preAffected, postAffected)) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('memoize-state:', func, 'is not pure, or memoized internally. Skipping');
+      console.warn('used state keys before', preAffected);
+      console.warn('used state keys after', postAffected);
+    }
+    return false;
+  }
+  return true;
+}
 
 function memoize(func, _options = {}) {
   const options = Object.assign({}, defaultOptions, _options);
@@ -126,6 +172,8 @@ function memoize(func, _options = {}) {
   let cacheHit = 0;
   let cacheMiss = 0;
 
+  let resultSafeChecked = false;
+  let cacheSafeChecked = false;
   let memoizationDisabled = false;
 
   function functor(...args) {
@@ -137,6 +185,12 @@ function memoize(func, _options = {}) {
     }
 
     let result = (options.shallowCheck && shallowHit(cache, args)) || (options.equalCheck && equalHit(cache, args));
+    if (result) {
+      if (options.safe && !cacheSafeChecked) {
+        cacheSafeChecked = true;
+        memoizationDisabled = !purityCheck(cache, args, func);
+      }
+    }
 
     if (!result) {
       cacheMiss++;
@@ -144,22 +198,9 @@ function memoize(func, _options = {}) {
       executeTimes++;
 
       // test for internal memoization
-      if (options.safe) {
-        // run second time
-        const preAffected = cache[0][1];
-        callIn(this, cache, args, func, options.cacheSize);
-        const postAffected = cache[0][1];
-
-        executeTimes++;
-
-        if (!compareAffected(preAffected, postAffected)) {
-          memoizationDisabled = 1;
-          if (process.env.NODE_ENV !== 'production') {
-            console.warn('memoize-state:', func, 'is not pure, or memoized internally. Skipping');
-            console.warn('used state keys before', preAffected);
-            console.warn('used state keys after', postAffected);
-          }
-        }
+      if (options.safe && !resultSafeChecked) {
+        resultSafeChecked = true;
+        memoizationDisabled = !purityCheck(cache, args, func);
       }
     } else {
       cacheHit++;
@@ -180,6 +221,8 @@ function memoize(func, _options = {}) {
 
       runTimes,
       executeTimes,
+
+      cache
     }),
     configurable: true
   });

@@ -108,6 +108,18 @@ describe('memoize-proxy', () => {
     expect(ft.someProp).to.be.equal(42);
   });
 
+  it('should detect argument as result', () => {
+    function f1(a) {
+      return a.a && a;
+    }
+
+    const f = memoize(f1);
+    expect(f({a: 1, b: 1})).to.be.deep.equal({a: 1, b: 1});
+    expect(f.cacheStatistics.cache[0][1][0][1]).to.be.deep.equal([".a", ""]);
+    expect(f({a: 1, b: 2})).to.be.deep.equal({a: 1, b: 2});
+    expect(f.cacheStatistics.cache[0][1][0][1]).to.be.deep.equal([".a", ""]);
+  })
+
   it('smoke args memoization', () => {
     const o1 = {a: 1};
     const o2 = {a: 1};
@@ -151,9 +163,9 @@ describe('memoize-proxy', () => {
       test2(A);
       expect(test2.isPure).to.be.true;
       test2([1, 2, 3]);
-      expect(test2.isPure).to.be.false;
+      expect(test2.isPure).to.be.true;
       test2([1, 2, 3]);
-      expect(test2.isPure).to.be.false;
+      expect(test2.isPure).to.be.true;
     });
 
     it('pure memoization', () => {
@@ -203,12 +215,6 @@ describe('memoize-proxy', () => {
       expect(test({a: A})).to.be.equal(A);
       expect(test({a: 1})).to.be.equal(A);
       expect(test({a: 2})).to.be.equal(A);
-
-      cache = 0;
-      autoCache = 1;
-      test({a: 42}, 'bustcache');
-      expect(test.isPure).to.be.false;
-
     });
   });
 });
