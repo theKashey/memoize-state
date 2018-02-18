@@ -1,14 +1,20 @@
 declare module 'memoize-state' {
 
+    interface MemoizeStateOptions {
+        cacheSize?: number,
+        shallowCheck: boolean,
+        equalCheck: boolean,
+        safe: boolean
+    }
     /**
      * Memoizes the function basing on paramiters actually used by a function
-     * @param {<T>() => any} functor - function to be wrapped
-     * @param {number} memoizationDepth =1, memoization count. Only one last call by default
+     * @param {T} functor - function to be wrapped
+     * @param {MemoizeStateOptions} [memoizationOptions], options
      * @return {T}
      * @example
      *  const memoizedFn = memoize(fn)
      */
-    export default function memoize<T>(functor: T, memoizationDepth?: number): T;
+    export default function memoize<T>(functor: T, memoizationOptions?: MemoizeStateOptions): T;
 
     /**
      * double checks that function inside the `executor` is a pure function

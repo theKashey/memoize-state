@@ -1,4 +1,13 @@
-import {proxyCompare, collectShallows, collectValuables, proxyState,} from 'proxyequal';
+import {proxyCompare, collectShallows, collectValuables, proxyState, deproxify, isProxyfied} from 'proxyequal';
+
+const emptyArray = [];
+
+const defaultOptions = {
+  cacheSize: 1,
+  shallowCheck: true,
+  equalCheck: true,
+  safe: false
+};
 
 function updateCacheLine(cache, lineId, value) {
   for (let i = lineId; i < cache.length - 1; i++) {
@@ -20,8 +29,8 @@ function buildCompare(test) {
       for (let j = 0; j < args.length; ++j) {
         const a = args[j];
         const b = lineArgs[j];
-        const affected = lineAffected[j][test];
-        if (a === b || (typeof a === 'object' && affected.length > 0 && proxyCompare(a, b, affected))) {
+        const affected = lineAffected[j] && lineAffected[j][test] || emptyArray;
+        if (a === b || (typeof a === 'object' && (affected.length === 0 || proxyCompare(a, b, affected)))) {
           //pass
         } else {
           found = null;
@@ -37,11 +46,32 @@ function buildCompare(test) {
   }
 }
 
-function callIn(cache, args, func, memoizationDepth) {
-  const proxies = args.map(state => state && typeof state === 'object' ? proxyState(state) : state);
-  const newArgs = proxies.map(({state}) => state);
-  const result = func(...newArgs);
-  const affected = proxies.map(({affected}) => [collectShallows(affected), collectValuables(affected)]);
+function deproxifyResult(result) {
+  const object = deproxify(result);
+  if (typeof object === 'object' && !isProxyfied(result)) {
+    const sub = Array.isArray(object) ? [] : {};
+    for (let i in object) {
+      if (object.hasOwnProperty(i)) {
+        sub[i] = isProxyfied(object[i]) ? deproxify(object[i]) : object[i]
+      }
+    }
+    return sub;
+  }
+  return object;
+}
+
+function callIn(that, cache, args, func, memoizationDepth) {
+  const proxies = args.map(arg => arg && typeof arg === 'object' ? proxyState(arg) : undefined);
+  const newArgs = args.map((arg, index) => proxies[index] ? proxies[index].state : arg);
+  const result = deproxifyResult(func.call(that, ...newArgs));
+  const affected = proxies
+    .map(proxy => {
+      if (proxy) {
+        const affected = proxy.affected || emptyArray;
+        return [collectShallows(affected), collectValuables(affected)]
+      }
+      return undefined;
+    });
   const cacheLine = [args, affected, result];
   if (cache.length < memoizationDepth) {
     cache.push(cacheLine)
@@ -54,17 +84,110 @@ function callIn(cache, args, func, memoizationDepth) {
 const shallowHit = buildCompare(0);
 const equalHit = buildCompare(1);
 
-function memoize(func, memoizationDepth = 1) {
+function transferProperties(source, target) {
+  const keys = Object.getOwnPropertyNames(source);
+
+  for (let i = 0; i < keys.length; ++i) {
+    const key = keys[i];
+    const descriptor = Object.getOwnPropertyDescriptor(source, key);
+    try {
+      Object.defineProperty(target, key, descriptor);
+    } catch (e) {
+    }
+  }
+}
+
+function compareAffected(a, b) {
+  if (a.length !== b.length) {
+    return false;
+  }
+  for (let i = 0; i < a.length; i++) {
+    if (typeof a[i] === 'object') {
+      if (!compareAffected(a[i], b[i])) {
+        return false;
+      }
+    } else {
+      if (a[i] !== b[i]) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+
+function memoize(func, _options = {}) {
+  const options = Object.assign({}, defaultOptions, _options);
+
   const cache = [];
 
+  let runTimes = 0;
+  let executeTimes = 0;
+  let cacheHit = 0;
+  let cacheMiss = 0;
+
+  let memoizationDisabled = false;
+
   function functor(...args) {
-    return shallowHit(cache, args) || equalHit(cache, args) || callIn(cache, args, func, memoizationDepth);
+    runTimes++;
+
+    if (memoizationDisabled) {
+      cacheMiss++;
+      return func.call(this, ...args);
+    }
+
+    let result = (options.shallowCheck && shallowHit(cache, args)) || (options.equalCheck && equalHit(cache, args));
+
+    if (!result) {
+      cacheMiss++;
+      result = callIn(this, cache, args, func, options.cacheSize)
+      executeTimes++;
+
+      // test for internal memoization
+      if (options.safe) {
+        // run second time
+        const preAffected = cache[0][1];
+        callIn(this, cache, args, func, options.cacheSize);
+        const postAffected = cache[0][1];
+
+        executeTimes++;
+
+        if (!compareAffected(preAffected, postAffected)) {
+          memoizationDisabled = 1;
+          if (process.env.NODE_ENV !== 'production') {
+            console.warn('memoize-state:', func, 'is not pure, or memoized internally. Skipping');
+            console.warn('used state keys before', preAffected);
+            console.warn('used state keys after', postAffected);
+          }
+        }
+      }
+    } else {
+      cacheHit++;
+    }
+
+    return result;
   }
+
+  transferProperties(func, functor);
+
+  Object.defineProperty(functor, 'cacheStatistics', {
+    get: () => ({
+      ratio: cacheHit / cacheHit,
+      memoizationDisabled,
+
+      cacheHit,
+      cacheHit,
+
+      runTimes,
+      executeTimes,
+    }),
+    configurable: true
+  });
 
   return functor;
 }
 
-const shallowTest = (a, b, errorMessage) => {
+const shallowTest = (a, b, ...errorMessage) => {
   if (a === b) {
     return true;
   }
@@ -111,7 +234,7 @@ const shallowTest = (a, b, errorMessage) => {
   }
 
   if (errors.length && errorMessage) {
-    console.error(errorMessage.replace('$KEYS$', errors.join(',')))
+    console.error.call(console, errorMessage.map(err => typeof err === 'string' ? err.replace('$KEYS$', errors.join(',')) : err))
   }
   return !errors.length;
 };
@@ -120,15 +243,20 @@ export const isThisPure = (fnCall, message = 'isThisPure') =>
   shallowTest(fnCall(), fnCall(), message + ':result is not equal at [$KEYS$]');
 
 export const shallBePure = (fnCall, message = 'shouldBePure') => {
-  const memoized = memoize(fnCall, 1);
+  const memoizedUnsafe = memoize(fnCall);
+  const memoizedSafe = memoize(fnCall, {safe: true});
   let lastResult = null;
   let lastMemoizedResult = null;
 
   function functor(...args) {
-    const mresult = memoized(...args);
+    memoizedSafe(...args);
+
+    const mresult = memoizedUnsafe(...args);
     const fresult = fnCall(...args);
-    functor.isPure = true;
-    if (lastResult) {
+
+    functor.isPure = !memoizedSafe.cacheStatistics.memoizationDisabled;
+
+    if (functor.isPure && lastResult) {
       if (lastResult !== fresult) {
         if (lastMemoizedResult === mresult) {
           functor.isPure = shallowTest(lastResult, fresult, message + ' `' + fnCall.name + '`\'s result is not equal at [$KEYS$], while should be equal');
