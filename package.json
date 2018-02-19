@@ -1,6 +1,6 @@
 {
   "name": "memoize-state",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "The right memoization for redux's mapStateToProps",
   "main": "lib/index.js",
   "types": "memoize.d.ts",
