@@ -1,4 +1,12 @@
-import {proxyCompare, collectShallows, collectValuables, proxyState, deproxify, isProxyfied, getProxyKey} from 'proxyequal';
+import {
+  proxyCompare,
+  collectShallows,
+  collectValuables,
+  proxyState,
+  deproxify,
+  isProxyfied,
+  getProxyKey
+} from 'proxyequal';
 
 /*eslint no-console: ["error", { allow: ["warn", "error"] }] */
 
@@ -8,6 +16,8 @@ const defaultOptions = {
   cacheSize: 1,
   shallowCheck: true,
   equalCheck: true,
+  strictArguments: false,
+  nestedEquality: true,
   safe: false
 };
 
@@ -69,14 +79,14 @@ function deproxifyResult(result, affected, returnPureValue) {
       if (result.hasOwnProperty(i)) {
         const data = result[i];
         const newResult = deproxifyResult(data, affected, false);
-        if(data && newResult){
+        if (data && newResult) {
           altered = true;
         }
 
         sub[i] = newResult || data;
       }
     }
-    if(altered){
+    if (altered) {
       return sub
     }
     return returnPureValue && result;
@@ -85,8 +95,17 @@ function deproxifyResult(result, affected, returnPureValue) {
   return result;
 }
 
-function callIn(that, cache, args, func, memoizationDepth) {
-  const proxies = args.map((arg, index) => arg && typeof arg === 'object' ? proxyState(arg, index) : undefined);
+function callIn(that, cache, args, func, memoizationDepth, proxyMap = []) {
+  const proxies = args.map((arg, index) => {
+    if (arg && typeof arg === 'object') {
+      const map = proxyMap[index];
+      if (!map) {
+        return proxyMap[index] = proxyState(arg, index);
+      }
+      return map.replaceState(arg);
+    }
+    return undefined
+  });
   const newArgs = args.map((arg, index) => proxies[index] ? proxies[index].state : arg);
   const preResult = func.call(that, ...newArgs);
   const affected = proxies
@@ -165,6 +184,8 @@ function memoize(func, _options = {}) {
 
   const cache = [];
 
+  let proxyMap = {};
+
   let runTimes = 0;
   let executeTimes = 0;
   let cacheHit = 0;
@@ -176,6 +197,13 @@ function memoize(func, _options = {}) {
 
   function functor(...args) {
     runTimes++;
+    if (options.strictArguments && func.length) {
+      args.length = Math.min(func.length, args.length);
+    }
+
+    if(!options.nestedEquality){
+      proxyMap = {};
+    }
 
     if (memoizationDisabled) {
       cacheMiss++;
@@ -186,19 +214,19 @@ function memoize(func, _options = {}) {
     if (result) {
       if (options.safe && !cacheSafeChecked) {
         cacheSafeChecked = true;
-        memoizationDisabled = !purityCheck(cache, args, func);
+        memoizationDisabled = !purityCheck(cache, args, func, proxyMap);
       }
     }
 
     if (!result) {
       cacheMiss++;
-      result = callIn(this, cache, args, func, options.cacheSize)
+      result = callIn(this, cache, args, func, options.cacheSize, proxyMap);
       executeTimes++;
 
       // test for internal memoization
       if (options.safe && !resultSafeChecked) {
         resultSafeChecked = true;
-        memoizationDisabled = !purityCheck(cache, args, func);
+        memoizationDisabled = !purityCheck(cache, args, func, proxyMap);
       }
     } else {
       cacheHit++;

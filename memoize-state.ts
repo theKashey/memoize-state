@@ -1,9 +1,35 @@
 declare module 'memoize-state' {
 
     interface MemoizeStateOptions {
+        /**
+         * the size of the cache
+         * @default 1
+         */
         cacheSize?: number,
+        /**
+         * allow shallow arguments check
+         * @default true
+         */
         shallowCheck: boolean,
+        /**
+         * allow equal argiments check
+         * @default true
+         */
         equalCheck: boolean,
+        /**
+         * respond only to the "used" amount of arguments (not working with spread)
+         * @default false
+         */
+        strictArguments: boolean,
+        /**
+         * maintain the equal object equality
+         * @default true
+         */
+        nestedEquality: boolean,
+        /**
+         * perform additional safe checks
+         * @default false
+         */
         safe: boolean
     }
     /**

@@ -120,17 +120,59 @@ describe('memoize-proxy', () => {
     expect(f.cacheStatistics.cache[0][1][0][1]).to.be.deep.equal([".a", ""]);
   })
 
+  it('should maintain object equality', () => {
+    const A = {
+      data: 42
+    };
+    const B = { A };
+    const C = { A };
+
+    let cache1, cache2;
+
+    const fn1 = ({A}) => {
+      if(!cache1) {
+         cache1=A;
+      } else {
+        expect(cache1).to.be.equal(A);
+      }
+    };
+
+    const fn2 = ({A}) => {
+      if(!cache2) {
+        cache2=A;
+      } else {
+        expect(cache2).not.to.be.equal(A);
+      }
+    };
+
+    const mfn1 = memoize(fn1);
+    mfn1(B);
+    mfn1(C);
+
+    const mfn2 = memoize(fn2, { nestedEquality: false });
+    mfn2(B);
+    mfn2(C);
+  });
+
   it('smoke args memoization', () => {
     const o1 = {a: 1};
     const o2 = {a: 1};
-    const f = memoize(obj => Object.assign({}, obj));
+    const f1 = memoize(obj => Object.assign({}, obj), { strictArguments: true });
+    const f2 = memoize(obj => Object.assign({}, obj));
 
-    const result1 = f(o1, 1, o1);
-    const result2 = f(o2, 1, o1);
-    const result3 = f(o2, 2, o1);
+    const result11 = f1(o1, 1, o1);
+    const result12 = f1(o2, 1, o1);
+    const result13 = f1(o2, 2, o1);
 
-    expect(result1).to.be.equal(result2);
-    expect(result2).not.to.be.equal(result3);
+    expect(result11).to.be.equal(result12);
+    expect(result12).to.be.equal(result13);
+
+    const result21 = f2(o1, 1, o1);
+    const result22 = f2(o2, 1, o1);
+    const result23 = f2(o2, 2, o1);
+
+    expect(result21).to.be.equal(result22)
+    expect(result22).not.to.be.equal(result23);
   })
 
   it('isThisPure', () => {
