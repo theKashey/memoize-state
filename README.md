@@ -1,23 +1,26 @@
 memoize-state
 =====
-__Reselect__? Memoize-one? It is quite __hard__ to __debug__ how __mapStateToProps__ behave.
+[![CircleCI status](https://img.shields.io/circleci/project/github/theKashey/memoize-state/master.svg?style=flat-square)](https://circleci.com/gh/theKashey/memoize-state/tree/master)
 
-You know - it should be a __pure function__, returning the same results for the same arguments. 
-mapStateToProps, should be strict equal across the different calls
+__Reselect__? Memoize-one? Most of memoization libraries remeber the parameters you provided, not how you use them. 
+As result is not easy to achive high cache hit ratio, cos:
+- it is hard to create stuctured selectors
+- you are changing a value, not changing values inside it.
 
-`mapStateToProps(state) === mapStateToProps(state)`
+**I don't want to think how to use memoization, I want to use memoization!**
 
-or, at least, shallow equal. Actually this is the case, redux expects
- 
-`shallowEqual(mapStateToProps(state), mapStateToProps(state))`.
+Lets imagine some complex function.
+```js
+ const fn = memoize((number, state, string) => state[string].value + number)
+ fn(1, { value: 1, otherValue: 1}, 'value');
+ fn(1, { value: 1, otherValue: 2 }, 'value');
+ fn(1, { value: 1 }, 'value');
+```
+All _ordinal_ memoization libraries will drop cache each time, as long `state` is different each time.
+But not today!
 
-But it does not.
-
-Most of memoizations works as __selectors__, making a new result to be __shallowequal__ to the old one, to prevent
-unnecessary redraw.
-
-Memoize-state memoizes used __state__, using the same __magic__, as you can found in __MobX__.
-And, you know, you can use it to memoize any function.
+Memoize-state memoizes used __state__ parts, using the same __magic__, as you can found in __MobX__.
+It will know, that it should react only state.value. _Perfect_.
 
 [![NPM](https://nodei.co/npm/memoize-state.png?downloads=true&stars=true)](https://nodei.co/npm/memoize-state/)
 
@@ -28,12 +31,22 @@ And, you know, you can use it to memoize any function.
 - If argument is not an object - memoize will compare values.
 - result function will have `cacheStatistics` method. JFYI.
 
-
 ### Possible options
 - cacheSize, default 1. The size of cache.
 - shallowCheck, default true. Perform shallow equal between arguments.
 - equalCheck, default true. Perform deep proxyequal comparision.
 - safe, default false. Activate the `safe` memoization mode. See below. 
+
+### MapStateToProps
+You know - it should be a __pure function__, returning the same results for the same arguments. 
+mapStateToProps, should be strict equal across the different calls
+`mapStateToProps(state) === mapStateToProps(state)`
+or, at least, shallow equal
+`shallowEqual(mapStateToProps(state), mapStateToProps(state))`.
+
+Creating good memoization function, using reselect, avoiding side-effects - it could be hard. I know.
+
+Memoize-state was created to solve this case, especially this case.
 
 ## Key principe
 Memoize-state will track the way you __USE__ the state.
@@ -102,6 +115,8 @@ In both cases wrapped function should return the "same" result.
   
 ### Can I memoize-state memoized-state function?
 Yes, you could. 
+
+But memoize-state could disable another underlying memoizations libraries.
   
 ## Speed
 

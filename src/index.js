@@ -1,5 +1,7 @@
 import {proxyCompare, collectShallows, collectValuables, proxyState, deproxify, isProxyfied, getProxyKey} from 'proxyequal';
 
+/*eslint no-console: ["error", { allow: ["warn", "error"] }] */
+
 const emptyArray = [];
 
 const defaultOptions = {
@@ -66,11 +68,6 @@ function deproxifyResult(result, affected, returnPureValue) {
     for (let i in result) {
       if (result.hasOwnProperty(i)) {
         const data = result[i];
-        const isInProxy = isProxyfied(data);
-        // if (isInProxy) {
-        //   altered = true;
-        //   addAffected(affected, data);
-        // }
         const newResult = deproxifyResult(data, affected, false);
         if(data && newResult){
           altered = true;
@@ -122,6 +119,7 @@ function transferProperties(source, target) {
     try {
       Object.defineProperty(target, key, descriptor);
     } catch (e) {
+      // nop
     }
   }
 }
@@ -217,7 +215,7 @@ function memoize(func, _options = {}) {
       memoizationDisabled,
 
       cacheHit,
-      cacheHit,
+      cacheMiss,
 
       runTimes,
       executeTimes,
@@ -249,7 +247,7 @@ const shallowTest = (a, b, ...errorMessage) => {
 
     for (let idx = 0; idx < a.length; idx++) {
       if (a[idx] !== b[idx]) {
-        errors.push(key);
+        errors.push(idx);
       }
     }
 
