@@ -102,6 +102,7 @@ function callIn(that, cache, args, func, memoizationDepth, proxyMap = []) {
       if (!map) {
         return proxyMap[index] = proxyState(arg, index);
       }
+      map.reset();
       return map.replaceState(arg);
     }
     return undefined

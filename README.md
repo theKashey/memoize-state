@@ -135,7 +135,101 @@ But memoize-state could disable another underlying memoizations libraries.
 
 Uses `ES6 Proxy` underneath to detect used branches of a state (as `MobX`).
 Removes all the magic from result value. 
-Should be slower than "manual" __reselect__ors, but faster than anything else. 
+Should be slower than "manual" __reselect__ors, but faster than anything else.
+
+We have a performance test, according to the results - 
+- memoize-state __is not slower__ than major competitors, and __10-100x times faster__, for the "state" cases.
+- lodash.memoize and fast-memoize could not handle __big__ states as input.
+- memoize-one should be super fast, but it is not
+
+But the major difference is
+- memoize-one are having __highest hitratio__, than means - it were able to "memoize" most of the cases
+```text
+function of 3 arguments, all unchanged
+memoize-one     x         6563316 ops/sec ±1.50% (6 runs sampled)  hitratio 100% 2 /2432667
+lodash.memoize  x         2988552 ops/sec ±3.98% (5 runs sampled)  hitratio 100% 1 /3844342
+fast-memoize    x         1007010 ops/sec ±1.18% (6 runs sampled)  hitratio 100% 1 /4443629
+memoize-state   x         3753869 ops/sec ±1.33% (6 runs sampled)  hitratio 100% 1 /6175599
+Fastest is memoize-one
+
+function of 2 arguments, providing 3, all unchanged
+memoize-one     x         6077327 ops/sec ±1.53% (6 runs sampled)  hitratio 100% 2 /2534824
+lodash.memoize  x         2780103 ops/sec ±1.88% (6 runs sampled)  hitratio 100% 1 /3615601
+fast-memoize    x          928385 ops/sec ±4.59% (6 runs sampled)  hitratio 100% 1 /3998562
+memoize-state   x         3389800 ops/sec ±1.51% (6 runs sampled)  hitratio 100% 1 /5243823
+Fastest is memoize-one
+
+function of 3 arguments, all changed / 10
+memoize-one     x           19043 ops/sec ±1.15% (6 runs sampled)  hitratio 50% 4083 /8163
+lodash.memoize  x           30242 ops/sec ±1.45% (5 runs sampled)  hitratio 79% 6114 /28541
+fast-memoize    x           17442 ops/sec ±0.78% (6 runs sampled)  hitratio 92% 2891 /34322
+memoize-state   x           16621 ops/sec ±2.16% (6 runs sampled)  hitratio 92% 3225 /40772
+Fastest is lodash.memoize
+
+function with an object as argument, returning a part
+memoize-one     x            8822 ops/sec ±1.39% (5 runs sampled)  hitratio 0% 4337 /4337
+lodash.memoize  x         1378671 ops/sec ±8.92% (6 runs sampled)  hitratio 100% 1 /669631
+fast-memoize    x         1027750 ops/sec ±6.03% (6 runs sampled)  hitratio 100% 1 /1246719
+memoize-state   x         1207975 ops/sec ±2.08% (6 runs sampled)  hitratio 100% 1 /1805336
+Fastest is lodash.memoize
+
+function with an object as argument, changing value, returning a part
+memoize-one     x            8236 ops/sec ±1.54% (6 runs sampled)  hitratio 0% 4112 /4112
+lodash.memoize  x           74548 ops/sec ±4.14% (6 runs sampled)  hitratio 91% 4106 /45160
+fast-memoize    x           71851 ops/sec ±2.60% (6 runs sampled)  hitratio 96% 3524 /80393
+memoize-state   x           61650 ops/sec ±1.28% (6 runs sampled)  hitratio 98% 2632 /106706
+Fastest is lodash.memoize,fast-memoize
+
+function with an object as argument, changing other value, returning a part
+memoize-one     x            7683 ops/sec ±1.78% (6 runs sampled)  hitratio 0% 3488 /3488
+lodash.memoize  x           69976 ops/sec ±2.08% (6 runs sampled)  hitratio 91% 3086 /34339
+fast-memoize    x           66844 ops/sec ±2.26% (6 runs sampled)  hitratio 96% 2308 /57408
+memoize-state   x         1085455 ops/sec ±2.39% (6 runs sampled)  hitratio 100% 1 /399267
+Fastest is memoize-state
+
+function with 2 objects as argument, changing both value
+memoize-one     x            7251 ops/sec ±7.62% (6 runs sampled)  hitratio 0% 3263 /3263
+lodash.memoize  x            7255 ops/sec ±3.94% (5 runs sampled)  hitratio 56% 2591 /5855
+fast-memoize    x            7197 ops/sec ±2.57% (6 runs sampled)  hitratio 64% 3341 /9197
+memoize-state   x           45612 ops/sec ±5.28% (6 runs sampled)  hitratio 94% 1487 /24063
+Fastest is memoize-state
+
+when changes anything, except the function gonna to consume
+memoize-one     x            8003 ops/sec ±0.99% (5 runs sampled)  hitratio 0% 3453 /3453
+lodash.memoize  x            7640 ops/sec ±2.47% (6 runs sampled)  hitratio 50% 3490 /6944
+fast-memoize    x            7315 ops/sec ±1.38% (5 runs sampled)  hitratio 73% 2576 /9521
+memoize-state   x          461062 ops/sec ±37.16% (6 runs sampled)  hitratio 100% 1 /270082
+Fastest is memoize-state
+
+when state is very big, and you need a small part
+memoize-one     x            7713 ops/sec ±2.21% (6 runs sampled)  hitratio 0% 3518 /3518
+lodash.memoize  x             198 ops/sec ±2.48% (6 runs sampled)  hitratio 100% 10 /3613
+fast-memoize    x             201 ops/sec ±1.54% (6 runs sampled)  hitratio 100% 9 /3688
+memoize-state   x           61350 ops/sec ±2.49% (6 runs sampled)  hitratio 91% 3072 /34404
+Fastest is memoize-state
+``` 
+
+### Even more speed
+
+```js
+function fn1(object) {
+  return object.value
+}
+
+// ^^ memoize state will react to any change of .value
+
+function fn2(object) {
+  return {...object.value}
+}
+
+// ^^ memoize state will react to any change of the values inside the .value
+
+// for example, if value contain booleans the X and they Y - they form 4 possible pairs
+const superMemoize = memoize(fn2, { cacheSize: 4 });
+
+// ^^ you just got uber function, which will return 4 exactly the same objects
+```
+
 
 ## Compatibility
 
