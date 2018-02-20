@@ -258,5 +258,20 @@ describe('memoize-proxy', () => {
       expect(test({a: 1})).to.be.equal(A);
       expect(test({a: 2})).to.be.equal(A);
     });
+
+    it('should detect internal memoization via safe mode', () => {
+      let cache = 0;
+      const fun = function (a) {
+        var result = cache || a.a
+        cache = result
+        return cache;
+      };
+
+      const test = shouldBePure(fun);
+      test({a: A});
+      expect(test.isPure).to.be.false;
+      test({a: A});
+      expect(test.isPure).to.be.false;
+    });
   });
 });
