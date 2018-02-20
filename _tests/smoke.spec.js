@@ -157,7 +157,7 @@ describe('memoize-proxy', () => {
   it('smoke args memoization', () => {
     const o1 = {a: 1};
     const o2 = {a: 1};
-    const f1 = memoize(obj => Object.assign({}, obj), { strictArguments: true });
+    const f1 = memoize(obj => Object.assign({}, obj), { strictArity: true });
     const f2 = memoize(obj => Object.assign({}, obj));
 
     const result11 = f1(o1, 1, o1);

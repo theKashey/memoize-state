@@ -16,7 +16,7 @@ const defaultOptions = {
   cacheSize: 1,
   shallowCheck: true,
   equalCheck: true,
-  strictArguments: false,
+  strictArity: false,
   nestedEquality: true,
   safe: false
 };
@@ -197,7 +197,7 @@ function memoize(func, _options = {}) {
 
   function functor(...args) {
     runTimes++;
-    if (options.strictArguments && func.length) {
+    if (options.strictArity && func.length) {
       args.length = Math.min(func.length, args.length);
     }
 

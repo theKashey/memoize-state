@@ -20,7 +20,7 @@ declare module 'memoize-state' {
          * respond only to the "used" amount of arguments (not working with spread)
          * @default false
          */
-        strictArguments: boolean,
+        strictArity: boolean,
         /**
          * maintain the equal object equality
          * @default true

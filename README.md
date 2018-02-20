@@ -2,6 +2,11 @@ memoize-state
 =====
 [![CircleCI status](https://img.shields.io/circleci/project/github/theKashey/memoize-state/master.svg?style=flat-square)](https://circleci.com/gh/theKashey/memoize-state/tree/master)
 
+>Caching (aka memoization) is very powerful optimization technique - however it only makes sense when maintaining the cache itself and looking up cached results is cheaper than performing computation itself again.
+[You don't need WASM to speed up JS](http://mrale.ph/blog/2018/02/03/maybe-you-dont-need-rust-to-speed-up-your-js.html)
+
+
+
 __Reselect__? Memoize-one? Most of memoization libraries remeber the parameters you provided, not how you use them. 
 As result is not easy to achive high cache hit ratio, cos:
 - it is hard to create stuctured selectors
@@ -9,14 +14,18 @@ As result is not easy to achive high cache hit ratio, cos:
 
 **I don't want to think how to use memoization, I want to use memoization!**
 
+Memoize-state is built to memoize more complex situations, even if it is cheaper to perform a computation.
+Just because one cheap computation can cause a recomputation cascade.
+
 Lets imagine some complex function.
 ```js
- const fn = memoize((number, state, string) => state[string].value + number)
+ const fn = memoize((number, state, string) => ({result:state[string].value + number}))
  fn(1, { value: 1, otherValue: 1}, 'value');
  fn(1, { value: 1, otherValue: 2 }, 'value');
  fn(1, { value: 1 }, 'value');
 ```
 All _ordinal_ memoization libraries will drop cache each time, as long `state` is different each time.
+More of it - it will return a unique object each time.
 But not today!
 
 Memoize-state memoizes used __state__ parts, using the same __magic__, as you can found in __MobX__.
@@ -35,6 +44,8 @@ It will know, that it should react only state.value. _Perfect_.
 - cacheSize, default 1. The size of cache.
 - shallowCheck, default true. Perform shallow equal between arguments.
 - equalCheck, default true. Perform deep proxyequal comparision.
+- strictArity, default false. Limit arguments count to the function default.
+- nestedEquality, default true. Keep the object equality for sub-proxies.
 - safe, default false. Activate the `safe` memoization mode. See below. 
 
 ### MapStateToProps
@@ -106,6 +117,8 @@ memoizedState({a:2}); // will return 1 FROM cache, and dont read anything from s
 memoizedState({a:3}); // memoize state saw, that you dont read anything from a state.
 // and will ignore __ANY__ changes. __FOREVER__!
 ``` 
+> PS: this would not happened if state.a is a object. Memoize-state will understand the case, when you are returning a part of a state
+ 
 It's easy to fix - `memoize(func, { safe: true })`, but func will be __called twice__ to detect internal memoization.
 
 In case of internal memoization safe-memoize will deactivate itself.
