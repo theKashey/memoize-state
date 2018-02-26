@@ -1,6 +1,7 @@
 import {expect} from 'chai';
 import {isProxyfied} from 'proxyequal';
 import memoize, {shouldBePure, isThisPure} from '../src/index';
+import memoizeOne from "../../memoize-one/src";
 
 describe('memoize-proxy', () => {
   it('memoize once', () => {
@@ -106,6 +107,15 @@ describe('memoize-proxy', () => {
     expect(f1.name).to.be.equal('function1');
     expect(ft.name).to.be.equal('functionT');
     expect(ft.someProp).to.be.equal(42);
+  });
+
+  it('should pass name and content', () => {
+    const fn = a => a;
+    function func(a) { return a; }
+    expect(memoize(fn).name).to.equal('fn');
+    expect(memoize(a => a).name).to.equal('');
+    expect(memoize(func).name).to.equal('func');
+    expect(String(memoize(func))).to.equal('/* memoized by memoize-state */\n'+func);
   });
 
   it('should detect argument as result', () => {

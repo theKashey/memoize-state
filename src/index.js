@@ -133,8 +133,7 @@ const equalHit = buildCompare(1);
 function transferProperties(source, target) {
   const keys = Object.getOwnPropertyNames(source);
 
-  for (let i = 0; i < keys.length; ++i) {
-    const key = keys[i];
+  for(const key of keys) {
     const descriptor = Object.getOwnPropertyDescriptor(source, key);
     try {
       Object.defineProperty(target, key, descriptor);
@@ -238,6 +237,15 @@ function memoize(func, _options = {}) {
 
   transferProperties(func, functor);
 
+  Object.defineProperty(functor, 'toString', {
+    configurable: true,
+    writable: false,
+    enumerable: false,
+    value: function toString() {
+      return '/* memoized by memoize-state */\n' + String(func);
+    },
+  });
+
   Object.defineProperty(functor, 'cacheStatistics', {
     get: () => ({
       ratio: cacheHit / cacheHit,
@@ -251,7 +259,8 @@ function memoize(func, _options = {}) {
 
       cache
     }),
-    configurable: true
+    configurable: true,
+    enumerable: false,
   });
 
   return functor;
