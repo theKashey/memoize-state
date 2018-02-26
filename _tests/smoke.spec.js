@@ -1,7 +1,6 @@
 import {expect} from 'chai';
 import {isProxyfied} from 'proxyequal';
 import memoize, {shouldBePure, isThisPure} from '../src/index';
-import memoizeOne from "../../memoize-one/src";
 
 describe('memoize-proxy', () => {
   it('memoize once', () => {
