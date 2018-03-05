@@ -35,13 +35,40 @@ describe('memoize-proxy', () => {
 
     const result1 = mm({a: 1, b: 2}, {extract: 'b', stuff: 1});
     const result2 = mm({a: '!', b: 2}, {extract: 'b', stuff: '!'});
-    expect(result1).not.to.be.equal(result2);
-    expect(result1).to.be.deep.equal(result2);
+    expect(result1).to.be.equal(result2);
     expect(mm({a: 1, b: 2}, {extract: 'b', stuff: 1})).to.be.equal(mm({a: '!', b: 2}, {extract: 'b', stuff: '!'}));
     expect(mm({a: 1, b: 2}, {extract: 'b', stuff: 1})).to.be.equal(mm({a: '!', b: 2}, {extract: 'b', stuff: '!'}));
 
-    expect(mm({a: 1, b: 2}, {extract: 'b', stuff: 1})).not.to.be.deep.equal(mm({a: '!', b: 3}, {extract: 'b', stuff: '!'}));
-    expect(mm({a: 1, b: 2}, {extract: 'b', stuff: 1})).not.to.be.deep.equal(mm({a: '!', b: 3}, {extract: 'a', stuff: '!'}));
+    expect(mm({a: 1, b: 2}, {extract: 'b', stuff: 1})).not.to.be.deep.equal(mm({a: '!', b: 3}, {
+      extract: 'b',
+      stuff: '!'
+    }));
+    expect(mm({a: 1, b: 2}, {extract: 'b', stuff: 1})).not.to.be.deep.equal(mm({a: '!', b: 3}, {
+      extract: 'a',
+      stuff: '!'
+    }));
+  });
+
+  it('nested memoization returning value', () => {
+    let callCount = 0;
+    const mapStateToProps = (state) => ({
+      a: state.a,
+      state: state,
+      callCount: callCount++
+    });
+
+    const mm = memoize(memoize(mapStateToProps));
+    const state1 = {a: 1};
+    expect(mm(state1)).to.be.deep.equal({a: 1, state: state1, callCount: 0})
+    expect(mm(state1)).to.be.deep.equal({a: 1, state: state1, callCount: 0})
+    const state2 = {a: 2}
+    expect(mm(state2)).to.be.deep.equal({a: 2, state: state2, callCount: 1})
+    expect(mm(state2)).to.be.deep.equal({a: 2, state: state2, callCount: 1})
+    const state3 = {a: 2, b: 3};
+    expect(mm(state3)).to.be.deep.equal({a: 2, state: state2, callCount: 1})
+    expect(mm(state2)).to.be.deep.equal({a: 2, state: state2, callCount: 1})
+
+    expect(mm(state1)).to.be.deep.equal({a: 1, state: state1, callCount: 2})
   });
 
   it('memoize twice', () => {
@@ -133,11 +160,15 @@ describe('memoize-proxy', () => {
 
   it('should pass name and content', () => {
     const fn = a => a;
-    function func(a) { return a; }
+
+    function func(a) {
+      return a;
+    }
+
     expect(memoize(fn).name).to.equal('fn');
     expect(memoize(a => a).name).to.equal('');
     expect(memoize(func).name).to.equal('func');
-    expect(String(memoize(func))).to.equal('/* memoized by memoize-state */\n'+func);
+    expect(String(memoize(func))).to.equal('/* memoized by memoize-state */\n' + func);
   });
 
   it('should detect argument as result', () => {
@@ -156,22 +187,22 @@ describe('memoize-proxy', () => {
     const A = {
       data: 42
     };
-    const B = { A };
-    const C = { A };
+    const B = {A};
+    const C = {A};
 
     let cache1, cache2;
 
     const fn1 = ({A}) => {
-      if(!cache1) {
-         cache1=A;
+      if (!cache1) {
+        cache1 = A;
       } else {
         expect(cache1).to.be.equal(A);
       }
     };
 
     const fn2 = ({A}) => {
-      if(!cache2) {
-        cache2=A;
+      if (!cache2) {
+        cache2 = A;
       } else {
         expect(cache2).not.to.be.equal(A);
       }
@@ -181,7 +212,7 @@ describe('memoize-proxy', () => {
     mfn1(B);
     mfn1(C);
 
-    const mfn2 = memoize(fn2, { nestedEquality: false });
+    const mfn2 = memoize(fn2, {nestedEquality: false});
     mfn2(B);
     mfn2(C);
   });
@@ -189,7 +220,7 @@ describe('memoize-proxy', () => {
   it('smoke args memoization', () => {
     const o1 = {a: 1};
     const o2 = {a: 1};
-    const f1 = memoize(obj => Object.assign({}, obj), { strictArity: true });
+    const f1 = memoize(obj => Object.assign({}, obj), {strictArity: true});
     const f2 = memoize(obj => Object.assign({}, obj));
 
     const result11 = f1(o1, 1, o1);

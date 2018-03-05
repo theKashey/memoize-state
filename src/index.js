@@ -10,6 +10,8 @@ import {
 
 /*eslint no-console: ["error", { allow: ["warn", "error"] }] */
 
+const nothing = 'PROXY_EQUAL_NOTHING';
+
 const emptyArray = [];
 
 const defaultOptions = {
@@ -79,20 +81,21 @@ function deproxifyResult(result, affected, returnPureValue) {
       if (result.hasOwnProperty(i)) {
         const data = result[i];
         const newResult = deproxifyResult(data, affected, false);
-        if (data && newResult) {
+        if (data && newResult !== nothing) {
           altered = true;
+          sub[i] = newResult
+        } else {
+          sub[i] = data;
         }
-
-        sub[i] = newResult || data;
       }
     }
     if (altered) {
-      return sub
+      return sub;
     }
-    return returnPureValue && result;
+    return returnPureValue ? result : nothing;
   }
 
-  return result;
+  return returnPureValue ? result : nothing;
 }
 
 function callIn(that, cache, args, func, memoizationDepth, proxyMap = []) {
@@ -133,7 +136,7 @@ const equalHit = buildCompare(1);
 function transferProperties(source, target) {
   const keys = Object.getOwnPropertyNames(source);
 
-  for(const key of keys) {
+  for (const key of keys) {
     const descriptor = Object.getOwnPropertyDescriptor(source, key);
     try {
       Object.defineProperty(target, key, descriptor);
@@ -201,7 +204,7 @@ function memoize(func, _options = {}) {
       args.length = Math.min(func.length, args.length);
     }
 
-    if(!options.nestedEquality){
+    if (!options.nestedEquality) {
       proxyMap = {};
     }
 
