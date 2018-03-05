@@ -21,6 +21,29 @@ describe('memoize-proxy', () => {
     expect(mm({a: 1, b: 2}, {extract: 'b', stuff: 1})).not.to.be.equal(mm({a: '!', b: 3}, {extract: 'b', stuff: '!'}));
   });
 
+  it('nested memoization', () => {
+    let callCount = 0;
+    const mapStateToProps = (state, props) => Object.assign({},
+      {
+        [props.extract]: state[props.extract],
+        callCount: callCount++
+      } // invisible!
+    );
+
+    const mm = memoize(memoize(memoize(mapStateToProps)));
+    expect(mm({a: 1, b: 2}, {extract: 'b', stuff: 1})).not.to.be.equal(mm({a: '!', b: 3}, {extract: 'b', stuff: '!'}));
+
+    const result1 = mm({a: 1, b: 2}, {extract: 'b', stuff: 1});
+    const result2 = mm({a: '!', b: 2}, {extract: 'b', stuff: '!'});
+    expect(result1).not.to.be.equal(result2);
+    expect(result1).to.be.deep.equal(result2);
+    expect(mm({a: 1, b: 2}, {extract: 'b', stuff: 1})).to.be.equal(mm({a: '!', b: 2}, {extract: 'b', stuff: '!'}));
+    expect(mm({a: 1, b: 2}, {extract: 'b', stuff: 1})).to.be.equal(mm({a: '!', b: 2}, {extract: 'b', stuff: '!'}));
+
+    expect(mm({a: 1, b: 2}, {extract: 'b', stuff: 1})).not.to.be.deep.equal(mm({a: '!', b: 3}, {extract: 'b', stuff: '!'}));
+    expect(mm({a: 1, b: 2}, {extract: 'b', stuff: 1})).not.to.be.deep.equal(mm({a: '!', b: 3}, {extract: 'a', stuff: '!'}));
+  });
+
   it('memoize twice', () => {
     let callCount = 0;
     const mapStateToProps = (state, props) => Object.assign({},
