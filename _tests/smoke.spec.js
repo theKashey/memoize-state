@@ -59,16 +59,38 @@ describe('memoize-proxy', () => {
 
     const mm = memoize(memoize(mapStateToProps));
     const state1 = {a: 1};
-    expect(mm(state1)).to.be.deep.equal({a: 1, state: state1, callCount: 0})
-    expect(mm(state1)).to.be.deep.equal({a: 1, state: state1, callCount: 0})
-    const state2 = {a: 2}
-    expect(mm(state2)).to.be.deep.equal({a: 2, state: state2, callCount: 1})
-    expect(mm(state2)).to.be.deep.equal({a: 2, state: state2, callCount: 1})
+    expect(mm(state1)).to.be.deep.equal({a: 1, state: state1, callCount: 0});
+    expect(mm(state1)).to.be.deep.equal({a: 1, state: state1, callCount: 0});
+    const state2 = {a: 2};
+    expect(mm(state2)).to.be.deep.equal({a: 2, state: state2, callCount: 1});
+    expect(mm(state2)).to.be.deep.equal({a: 2, state: state2, callCount: 1});
     const state3 = {a: 2, b: 3};
-    expect(mm(state3)).to.be.deep.equal({a: 2, state: state2, callCount: 1})
-    expect(mm(state2)).to.be.deep.equal({a: 2, state: state2, callCount: 1})
+    expect(mm(state3)).to.be.deep.equal({a: 2, state: state3, callCount: 2});
+    expect(mm(state2)).to.be.deep.equal({a: 2, state: state2, callCount: 3})
+;
+    expect(mm(state1)).to.be.deep.equal({a: 1, state: state1, callCount: 4});
+  });
 
-    expect(mm(state1)).to.be.deep.equal({a: 1, state: state1, callCount: 2})
+  it('nested memoization not returning value', () => {
+    let callCount = 0;
+    const mapStateToProps = (state) => ({
+      a: state.a,
+      state: state.a,
+      callCount: callCount++
+    });
+
+    const mm = memoize(memoize(mapStateToProps));
+    const state1 = {a: 1};
+    expect(mm(state1)).to.be.deep.equal({a: 1, state: 1, callCount: 0});
+    expect(mm(state1)).to.be.deep.equal({a: 1, state: 1, callCount: 0});
+    const state2 = {a: 2};
+    expect(mm(state2)).to.be.deep.equal({a: 2, state: 2, callCount: 1});
+    expect(mm(state2)).to.be.deep.equal({a: 2, state: 2, callCount: 1});
+    const state3 = {a: 2, b: 3};
+    expect(mm(state3)).to.be.deep.equal({a: 2, state: 2, callCount: 1});
+    expect(mm(state2)).to.be.deep.equal({a: 2, state: 2, callCount: 1});
+
+    expect(mm(state1)).to.be.deep.equal({a: 1, state: 1, callCount: 2});
   });
 
   it('memoize twice', () => {
