@@ -230,12 +230,23 @@ const superMemoize = memoize(fn2, { cacheSize: 4 });
 // ^^ you just got uber function, which will return 4 exactly the same objects
 ```
 
+## The cost of the magic
+Executing the function against EMPTY function, but triggering most of internal mechanics.
+```text
+base            x       244.000.431 
+memoize-one     x        18.150.966 
+lodash.memoize  x         3.941.183 
+fast-memoize    x        34.699.858 
+memoize-state   x         4.615.104 
+```
+
 ## The common memoization
 Memoize-state is not a best fit for a common case. It is designed to handle
 - the complex objects
 - limited count of stored cache lines (default: 1)
 
-This is a fibonacci test from - fast-memoize.
+This is a fibonacci test from - fast-memoize. The test uses different performance measuring tool
+and numbers differs.
 ```test
 │ fast-memoize@current       │ 204,819,529 │ ± 0.85%                  │ 88          │
 ├────────────────────────────┼─────────────┼──────────────────────────┼─────────────┤

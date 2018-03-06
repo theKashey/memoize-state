@@ -49,6 +49,7 @@ describe('performance test', () => {
     complexRun = 0;
     let localRun = 0;
     suite
+      .add('base', () => fun.apply(localRun++ && null, methods()), options)
       .add('memoize-one', () => mo.apply(localRun++ && null, methods()), options)
       .add('lodash.memoize', () => ml.apply(localRun++ && null, methods()), options)
       .add('fast-memoize', () => mf.apply(localRun++ && null, methods()), options)
@@ -77,6 +78,28 @@ describe('performance test', () => {
         return a + b + c
       },
       () => [1, 2, 3],
+      done
+    )
+  }).timeout(10000);
+
+  it('dry run. empty function calling object, not returning', (done) => {
+    console.log('function of 1 arguments, object unchanged');
+    test(
+      function (a) {
+        return 42;
+      },
+      () => {},
+      done
+    )
+  }).timeout(10000);
+
+  it('dry run. empty function calling object', (done) => {
+    console.log('function of 1 arguments, object unchanged');
+    test(
+      function (a) {
+        return a
+      },
+      () => {},
       done
     )
   }).timeout(10000);
