@@ -67,7 +67,7 @@ describe('memoize-proxy', () => {
     const state3 = {a: 2, b: 3};
     expect(mm(state3)).to.be.deep.equal({a: 2, state: state3, callCount: 2});
     expect(mm(state2)).to.be.deep.equal({a: 2, state: state2, callCount: 3})
-;
+    ;
     expect(mm(state1)).to.be.deep.equal({a: 1, state: state1, callCount: 4});
   });
 
@@ -93,11 +93,131 @@ describe('memoize-proxy', () => {
     expect(mm(state1)).to.be.deep.equal({a: 1, state: 1, callCount: 2});
   });
 
+  it('memoize twice shadowing', () => {
+
+    const mapStateToProps = (state, props) => state.a[0].b.c + state.a[1].b.c + props.value;
+
+    const mm = memoize(memoize(mapStateToProps, {cacheSize: 2}));
+
+    const A1 = {
+      a: [
+        {b: {c: 1}},
+        {b: {c: 1}}
+      ]
+    };
+    const A2 = {
+      a: [
+        {b: A1.a[0].b},
+        {b: {c: 1}}
+      ]
+    };
+    const A3 = {
+      a: [
+        {b: {c: 1}},
+        {b: {c: 1, d: 1}}
+      ]
+    };
+
+    expect(mm(A1, {value: 0})).to.be.equal(2);
+    expect(mm.getAffectedPaths()).to.be.deep.equal([
+      [
+        ".a.0.b.c",
+        ".a.1.b.c"
+      ],
+      [
+        ".value"
+      ]
+    ]);
+
+    expect(mm(A1, {value: 0})).to.be.equal(2);
+    expect(mm.getAffectedPaths()).to.be.deep.equal([
+      [
+        ".a.0.b.c",
+        ".a.1.b.c"
+      ],
+      [
+        ".value"
+      ]
+    ]);
+
+    expect(mm(A2, {value: 0})).to.be.equal(2);
+    expect(mm.getAffectedPaths()).to.be.deep.equal([
+      [
+        ".a.0.b.c",
+        ".a.1.b.c"
+      ],
+      [
+        ".value"
+      ]
+    ]);
+
+    expect(mm(A3, {value: 0})).to.be.equal(2);
+    expect(mm.getAffectedPaths()).to.be.deep.equal([
+      [
+        ".a.0.b.c",
+        ".a.1.b.c"
+      ],
+      [
+        ".value"
+      ]
+    ]);
+  });
+
+  it('should keep equal compare when the object returned and shallow if values', () => {
+    const fn1 = memoize(obj => ({obj}));
+    const fn2 = memoize(obj => (Object.assign({}, obj)));
+    expect(fn1({foo: 123})).not.to.be.equal(fn1({foo: 123}));
+    expect(fn1({foo: 123})).to.be.deep.equal(fn1({foo: 123}));
+    expect(fn2({foo: 123})).to.be.equal(fn2({foo: 123}));
+  });
+
+  it('redux-first-router-case', () => {
+    // https://github.com/theKashey/memoize-state/issues/3#issuecomment-372104800
+    const mapState = ({category, videosByCategory, videosHash}, {dispatch}) => {
+      const slugs = videosByCategory[category] || []
+      const videos = slugs.map(slug => videosHash[slug])
+      return {videos, dispatch}
+    };
+    const fn = memoize(mapState);
+    const dispatch = () => {
+    };
+
+    expect(
+      fn({category: 1, videosByCategory: {1: [42]}, videosHash: {42: "test"}}, {dispatch})
+    ).to.be.equal(
+      fn({category: 1, videosByCategory: {1: [42]}, videosHash: {42: "test"}}, {dispatch})
+    )
+  });
+
+  it('returning value and nested info', () => {
+    const mapStateToProps = (state) => ({
+      state: state.obj,
+      int: state.obj.int
+    });
+
+    const mm = memoize(mapStateToProps);
+
+    const state1 = {obj: {int: 42}, b: 42};
+    expect(mm(state1)).to.be.deep.equal({state: state1.obj, int: 42});
+    const state2 = {obj: {int: 42}, b: 42};
+    expect(mm(state2)).to.be.deep.equal({state: state2.obj, int: 42});
+    const state3 = {obj: state2.obj, b: 42};
+    expect(mm(state3)).to.be.deep.equal({state: state2.obj, int: 42});
+
+    const emptyObj = {};
+    const state4 = {obj: {int: emptyObj, a: 1}, b: 42};
+    expect(mm(state4)).to.be.deep.equal({state: state4.obj, int: emptyObj});
+    const state5 = {obj: {int: emptyObj, a: 2}, b: 42};
+    expect(mm(state5)).to.be.deep.equal({state: state5.obj, int: emptyObj});
+  });
+
   it('memoize twice', () => {
     let callCount = 0;
     const mapStateToProps = (state, props) => Object.assign({},
-      state[props.extract],
-      {callCount: callCount++} // invisible!
+      {
+        value: state[props.extract],
+        callCount: callCount++ // invisible!
+      }
     );
 
     const mm = memoize(mapStateToProps, {cacheSize: 2});
@@ -200,9 +320,11 @@ describe('memoize-proxy', () => {
 
     const f = memoize(f1);
     expect(f({a: 1, b: 1})).to.be.deep.equal({a: 1, b: 1});
-    expect(f.cacheStatistics.cache[0][1][0][1]).to.be.deep.equal([".a", ""]);
+    expect(f.cacheStatistics.cache[0][1][0].useAffected).to.be.deep.equal([".a"]);
+    expect(f.cacheStatistics.cache[0][1][0].resultAffected).to.be.deep.equal([""]);
     expect(f({a: 1, b: 2})).to.be.deep.equal({a: 1, b: 2});
-    expect(f.cacheStatistics.cache[0][1][0][1]).to.be.deep.equal([".a", ""]);
+    expect(f.cacheStatistics.cache[0][1][0].useAffected).to.be.deep.equal([".a"]);
+    expect(f.cacheStatistics.cache[0][1][0].resultAffected).to.be.deep.equal([""]);
   })
 
   it('should maintain object equality', () => {
@@ -323,7 +445,7 @@ describe('memoize-proxy', () => {
       let cache = 0;
       let autoCache = 0;
       const fun = function (a) {
-        var result = cache || a.a
+        var result = cache || a.a;
         if (autoCache) {
           cache = result
         }
@@ -347,15 +469,15 @@ describe('memoize-proxy', () => {
     it('should detect internal memoization via safe mode', () => {
       let cache = 0;
       const fun = function (a) {
-        var result = cache || a.a
-        cache = result
+        var result = cache || a.a;
+        cache = result;
         return cache;
       };
 
       const test = shouldBePure(fun);
-      test({a: A});
+      test({a: 1});
       expect(test.isPure).to.be.false;
-      test({a: A});
+      test({a: 2});
       expect(test.isPure).to.be.false;
     });
   });

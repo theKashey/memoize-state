@@ -1,6 +1,6 @@
 import {
   proxyCompare,
-  collectShallows,
+  proxyShallowEqual,
   collectValuables,
   proxyState,
   deproxify,
@@ -30,40 +30,45 @@ function updateCacheLine(cache, lineId, value) {
   cache[cache.length - 1] = value;
 }
 
-function buildCompare(test) {
-  return function (cache, args) {
-    for (let i = 0; i < cache.length; ++i) {
-      let found = cache[i];
-      const [lineArgs, lineAffected, lineValue] = found;
+function shallowEqualHit(cache, args) {
+  for (let i = 0; i < cache.length; ++i) {
+    let found = cache[i];
+    const [lineArgs, lineAffected, lineValue] = found;
 
-      if (args.length !== lineArgs.length) {
-        continue;
-      }
+    if (args.length !== lineArgs.length) {
+      continue;
+    }
 
-      for (let j = 0; j < args.length; ++j) {
-        const a = args[j];
-        const b = lineArgs[j];
-        const affected = lineAffected[j] && lineAffected[j][test] || emptyArray;
-        if (a === b || (typeof a === 'object' && (affected.length === 0 || proxyCompare(a, b, affected)))) {
-          //pass
-        } else {
-          found = null;
-          break;
-        }
-      }
-      if (found) {
-        updateCacheLine(cache, i, found);
-        return lineValue;
+    for (let j = 0; j < args.length; ++j) {
+      const a = args[j];
+      const b = lineArgs[j];
+      const useAffected = lineAffected[j] && lineAffected[j].useAffected;
+      const resultAffected = lineAffected[j] && lineAffected[j].resultAffected;
+      if (
+        a === b || (
+          typeof a === 'object'
+          && (useAffected.length === 0 || proxyShallowEqual(a, b, useAffected))
+          && (resultAffected.length === 0 || proxyCompare(a, b, resultAffected))
+        )
+      ) {
+        //pass
+      } else {
+        found = null;
+        break;
       }
     }
-    return undefined;
+    if (found) {
+      updateCacheLine(cache, i, found);
+      return lineValue;
+    }
   }
+  return undefined;
 }
+
 
 function addAffected(affected, object) {
   const key = getProxyKey(object);
-  affected[key.fingerPrint][0].push(key.suffix);
-  affected[key.fingerPrint][1].push(key.suffix);
+  affected[key.fingerPrint].resultAffected.push(key.suffix);
 }
 
 function deproxifyResult(result, affected, returnPureValue) {
@@ -116,7 +121,10 @@ function callIn(that, cache, args, func, memoizationDepth, proxyMap = []) {
     .map(proxy => {
       if (proxy) {
         const affected = proxy.affected || emptyArray;
-        return [collectShallows(affected), collectValuables(affected)]
+        return {
+          useAffected: [...affected],
+          resultAffected: []
+        };
       }
       return undefined;
     });
@@ -129,9 +137,6 @@ function callIn(that, cache, args, func, memoizationDepth, proxyMap = []) {
   }
   return result;
 }
-
-const shallowHit = buildCompare(0);
-const equalHit = buildCompare(1);
 
 function transferProperties(source, target) {
   const keys = Object.getOwnPropertyNames(source);
@@ -147,6 +152,9 @@ function transferProperties(source, target) {
 }
 
 function compareAffected(a, b) {
+  if (!Array.isArray(a)) {
+    return compareAffected(Object.values(a), Object.values(b));
+  }
   if (a.length !== b.length) {
     return false;
   }
@@ -198,6 +206,8 @@ function memoize(func, _options = {}) {
   let cacheSafeChecked = false;
   let memoizationDisabled = false;
 
+  let lastCallWasMemoized = false;
+
   function functor(...args) {
     runTimes++;
     if (options.strictArity && func.length) {
@@ -213,7 +223,11 @@ function memoize(func, _options = {}) {
       return func.call(this, ...args);
     }
 
-    let result = (options.shallowCheck && shallowHit(cache, args)) || (options.equalCheck && equalHit(cache, args));
+    //let result = (options.shallowCheck && shallowHit(cache, args)) || (options.equalCheck && equalHit(cache, args));
+    let result = (shallowEqualHit(cache, args));
+
+    lastCallWasMemoized = Boolean(result);
+
     if (result) {
       if (options.safe && !cacheSafeChecked) {
         cacheSafeChecked = true;
@@ -249,6 +263,26 @@ function memoize(func, _options = {}) {
     },
   });
 
+  Object.defineProperty(functor, 'getAffectedPaths', {
+    value: function () {
+      const result = [];
+      for (let line of cache) {
+        const lineAffected = line[1];
+        for (let argN = 0; argN < lineAffected.length; argN++) {
+          if (!result[argN]) {
+            result[argN] = {};
+          }
+          for (let key of collectValuables(lineAffected[argN].useAffected)) {
+            result[argN][key] = true;
+          }
+        }
+      }
+      return result.map(values => Object.keys(values));
+    },
+    configurable: true,
+    enumerable: false,
+  });
+
   Object.defineProperty(functor, 'cacheStatistics', {
     get: () => ({
       ratio: cacheHit / cacheHit,
@@ -259,6 +293,7 @@ function memoize(func, _options = {}) {
 
       runTimes,
       executeTimes,
+      lastCallWasMemoized,
 
       cache
     }),
