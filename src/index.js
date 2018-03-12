@@ -42,8 +42,8 @@ function shallowEqualHit(cache, args) {
     for (let j = 0; j < args.length; ++j) {
       const a = args[j];
       const b = lineArgs[j];
-      const useAffected = lineAffected[j] && lineAffected[j].useAffected;
-      const resultAffected = lineAffected[j] && lineAffected[j].resultAffected;
+      const useAffected = lineAffected[j] ? lineAffected[j].useAffected : [];
+      const resultAffected = lineAffected[j] ? lineAffected[j].resultAffected : [];
       if (
         a === b || (
           typeof a === 'object'
