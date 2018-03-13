@@ -1,5 +1,6 @@
 import {expect} from 'chai';
 import {isProxyfied} from 'proxyequal';
+import sinon from 'sinon';
 import memoize, {shouldBePure, isThisPure} from '../src/index';
 
 describe('memoize-proxy', () => {
@@ -392,6 +393,17 @@ describe('memoize-proxy', () => {
 
     const fun3 = memoize(a => ({result: a.map(a => a)}));
     expect(isThisPure(() => fun3(array))).to.be.true;
+  });
+
+  it('should report about spread operator', () => {
+    const mapState = ({a, ...rest}) => a;
+    const fn = memoize(mapState);
+    const spy = sinon.stub(console, "warn");
+    fn({a: 1, b: 1});
+
+    sinon.assert.calledWith(spy, 'memoize-state: object spread detected in ', mapState, '. Consider refactoring.');
+
+    spy.restore();
   });
 
   describe('shouldBePure', () => {

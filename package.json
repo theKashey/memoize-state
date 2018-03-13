@@ -25,6 +25,7 @@
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-eslint": "^8.2.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "benchmark": "^2.1.4",
     "chai": "^4.1.2",
@@ -45,6 +46,6 @@
   },
   "homepage": "https://github.com/theKashey/memoize-state#readme",
   "dependencies": {
-    "proxyequal": "^1.4.0"
+    "proxyequal": "^1.4.1"
   }
 }

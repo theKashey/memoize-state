@@ -239,6 +239,7 @@ lodash.memoize  x         3.941.183
 fast-memoize    x        34.699.858 
 memoize-state   x         4.615.104 
 ```
+> this 4 millions operations per second? A bit more that enough
 
 ## The common memoization
 Memoize-state is not a best fit for a common case. It is designed to handle
@@ -271,11 +272,37 @@ and numbers differs.
 ```
 memoize-state is comparable with lodash and underscore, even in this example.
 
+## Spread no-op
+>memoize-state: object spread detected in XXX. Consider refactoring.
+
+Memoize state could not properly work if you "spread" state
+```js
+const mapStateToProps = ({prop,i,need,...rest}) =>....
+//or
+const mapStateToProps = (state, props) => ({ ...state, ...props })
+//or
+const mapState = ({ page, direction, ...state }) => ({
+  page,
+  direction,
+  isLoading: isLoading(state)
+})
+``` 
+It will assume, that you need ALL the keys, meanwhile - you could not.
+
+Workaround - refactor the code
+```js
+const mapState = state => ({
+  page: state.page,
+  direction: state.direction,
+  isLoading: isLoading(state)
+})
+```
+
+See [issue](https://github.com/theKashey/memoize-state/issues/3#issuecomment-372226092) for more details
 
 ## Compatibility
 
-__NOT__ compatible with __IE11__. One have to provide a proxy polyfill to make this work.
-See https://github.com/GoogleChrome/proxy-polyfill
+IE11/Android compatible. Contains [proxy-polyfill](https://github.com/GoogleChrome/proxy-polyfill) inside.
 
 # Licence
 MIT

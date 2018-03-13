@@ -402,6 +402,10 @@ babel-plugin-syntax-exponentiation-operator@^6.8.0:
   version "6.13.0"
   resolved "https://registry.yarnpkg.com/babel-plugin-syntax-exponentiation-operator/-/babel-plugin-syntax-exponentiation-operator-6.13.0.tgz#9ee7e8337290da95288201a6a57f4170317830de"
 
+babel-plugin-syntax-object-rest-spread@^6.8.0:
+  version "6.13.0"
+  resolved "https://registry.yarnpkg.com/babel-plugin-syntax-object-rest-spread/-/babel-plugin-syntax-object-rest-spread-6.13.0.tgz#fd6536f2bce13836ffa3a5458c4903a597bb3bf5"
+
 babel-plugin-syntax-trailing-function-commas@^6.22.0:
   version "6.22.0"
   resolved "https://registry.yarnpkg.com/babel-plugin-syntax-trailing-function-commas/-/babel-plugin-syntax-trailing-function-commas-6.22.0.tgz#ba0360937f8d06e40180a43fe0d5616fff532cf3"
@@ -589,6 +593,13 @@ babel-plugin-transform-exponentiation-operator@^6.22.0:
     babel-helper-builder-binary-assignment-operator-visitor "^6.24.1"
     babel-plugin-syntax-exponentiation-operator "^6.8.0"
     babel-runtime "^6.22.0"
+
+babel-plugin-transform-object-rest-spread@^6.26.0:
+  version "6.26.0"
+  resolved "https://registry.yarnpkg.com/babel-plugin-transform-object-rest-spread/-/babel-plugin-transform-object-rest-spread-6.26.0.tgz#0f36692d50fef6b7e2d4b3ac1478137a963b7b06"
+  dependencies:
+    babel-plugin-syntax-object-rest-spread "^6.8.0"
+    babel-runtime "^6.26.0"
 
 babel-plugin-transform-regenerator@^6.22.0:
   version "6.26.0"
@@ -1944,9 +1955,9 @@ proxy-polyfill@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/proxy-polyfill/-/proxy-polyfill-0.2.0.tgz#3c9d2a0fe7682c3903674e304f5d27797b711446"
 
-proxyequal@^1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/proxyequal/-/proxyequal-1.4.0.tgz#b613fd5c4adb8692627db38201a11e54fb211551"
+proxyequal@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/proxyequal/-/proxyequal-1.4.1.tgz#8b1492aba54a3f54ebb3406c5df7b825ddf1545a"
   dependencies:
     proxy-polyfill "^0.2.0"
     search-trie "^1.0.0"

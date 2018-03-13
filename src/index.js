@@ -117,9 +117,11 @@ function callIn(that, cache, args, func, memoizationDepth, proxyMap = []) {
   });
   const newArgs = args.map((arg, index) => proxies[index] ? proxies[index].state : arg);
   const preResult = func.call(that, ...newArgs);
+  let spreadDetected = false;
   const affected = proxies
     .map(proxy => {
       if (proxy) {
+        spreadDetected |= proxy.spreadDetected;
         const affected = proxy.affected || emptyArray;
         return {
           useAffected: [...affected],
@@ -135,6 +137,13 @@ function callIn(that, cache, args, func, memoizationDepth, proxyMap = []) {
   } else {
     updateCacheLine(cache, 0, cacheLine);
   }
+
+  if (spreadDetected) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('memoize-state: object spread detected in ', func, '. Consider refactoring.');
+    }
+  }
+
   return result;
 }
 
@@ -223,7 +232,6 @@ function memoize(func, _options = {}) {
       return func.call(this, ...args);
     }
 
-    //let result = (options.shallowCheck && shallowHit(cache, args)) || (options.equalCheck && equalHit(cache, args));
     let result = (shallowEqualHit(cache, args));
 
     lastCallWasMemoized = Boolean(result);
@@ -285,7 +293,7 @@ function memoize(func, _options = {}) {
 
   Object.defineProperty(functor, 'cacheStatistics', {
     get: () => ({
-      ratio: cacheHit / cacheHit,
+      ratio: cacheHit / cacheMiss,
       memoizationDisabled,
 
       cacheHit,
@@ -351,7 +359,7 @@ const shallowTest = (a, b, ...errorMessage) => {
   }
 
   if (errors.length && errorMessage) {
-    console.error.call(console, errorMessage.map(err => typeof err === 'string' ? err.replace('$KEYS$', errors.join(',')) : err))
+    console.error.apply(console, errorMessage.map(err => typeof err === 'string' ? err.replace('$KEYS$', errors.join(',')) : err))
   }
   return !errors.length;
 };
@@ -376,7 +384,7 @@ export const shallBePure = (fnCall, message = 'shouldBePure') => {
     if (functor.isPure && lastResult) {
       if (lastResult !== fresult) {
         if (lastMemoizedResult === mresult) {
-          functor.isPure = shallowTest(lastResult, fresult, message + ' `' + fnCall.name + '`\'s result is not equal at [$KEYS$], while should be equal');
+          functor.isPure = shallowTest(lastResult, fresult, message, fnCall, '`s result is not equal at [$KEYS$], while should be equal');
         }
       }
     }
