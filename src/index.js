@@ -33,7 +33,7 @@ function updateCacheLine(cache, lineId, value) {
 function shallowEqualHit(cache, args) {
   for (let i = 0; i < cache.length; ++i) {
     let found = cache[i];
-    const [lineArgs, lineAffected, lineValue] = found;
+    const {args: lineArgs, affected: lineAffected, result: lineValue} = found;
 
     if (args.length !== lineArgs.length) {
       continue;
@@ -115,8 +115,8 @@ function callIn(that, cache, args, func, memoizationDepth, proxyMap = []) {
     }
     return undefined
   });
-  const newArgs = args.map((arg, index) => proxies[index] ? proxies[index].state : arg);
-  const preResult = func.call(that, ...newArgs);
+  const callArgs = args.map((arg, index) => proxies[index] ? proxies[index].state : arg);
+  const preResult = func.call(that, ...callArgs);
   let spreadDetected = false;
   const affected = proxies
     .map(proxy => {
@@ -131,7 +131,7 @@ function callIn(that, cache, args, func, memoizationDepth, proxyMap = []) {
       return undefined;
     });
   const result = deproxifyResult(preResult, affected, true);
-  const cacheLine = [args, affected, result];
+  const cacheLine = {args, affected, result, callArgs};
   if (cache.length < memoizationDepth) {
     cache.push(cacheLine)
   } else {
@@ -181,12 +181,15 @@ function compareAffected(a, b) {
   return true;
 }
 
-function purityCheck(cache, args, func) {
-  const safeCache = [];
+function isolatedCall(safeCache, args, func) {
   callIn(this, safeCache, args, func, 1);
+  return safeCache;
+}
 
-  const preAffected = cache[0][1];
-  const postAffected = safeCache[0][1];
+function purityCheck(cache, safeCache, func) {
+
+  const preAffected = cache[0].affected;
+  const postAffected = safeCache[0].affected;
 
   if (!compareAffected(preAffected, postAffected)) {
     if (process.env.NODE_ENV !== 'production') {
@@ -212,7 +215,6 @@ function memoize(func, _options = {}) {
   let cacheMiss = 0;
 
   let resultSafeChecked = false;
-  let cacheSafeChecked = false;
   let memoizationDisabled = false;
 
   let lastCallWasMemoized = false;
@@ -236,23 +238,22 @@ function memoize(func, _options = {}) {
 
     lastCallWasMemoized = Boolean(result);
 
-    if (result) {
-      if (options.safe && !cacheSafeChecked) {
-        cacheSafeChecked = true;
-        memoizationDisabled = !purityCheck(cache, args, func, proxyMap);
-      }
-    }
-
     if (!result) {
+      let safeCache;
+      if (options.safe && !resultSafeChecked) {
+        resultSafeChecked = true;
+        safeCache = isolatedCall([], args, func);
+      }
+
       cacheMiss++;
       result = callIn(this, cache, args, func, options.cacheSize, proxyMap);
       executeTimes++;
 
-      // test for internal memoization
-      if (options.safe && !resultSafeChecked) {
-        resultSafeChecked = true;
-        memoizationDisabled = !purityCheck(cache, args, func, proxyMap);
+      if (safeCache) {
+        memoizationDisabled = !purityCheck(cache, safeCache, func);
       }
+      // test for internal memoization
+
     } else {
       cacheHit++;
     }
@@ -275,7 +276,7 @@ function memoize(func, _options = {}) {
     value: function () {
       const result = [];
       for (let line of cache) {
-        const lineAffected = line[1];
+        const lineAffected = line.affected;
         for (let argN = 0; argN < lineAffected.length; argN++) {
           if (!result[argN]) {
             result[argN] = {};
@@ -295,6 +296,7 @@ function memoize(func, _options = {}) {
     get: () => ({
       ratio: cacheHit / cacheMiss,
       memoizationDisabled,
+      lastCallArgs: cache[cache.length - 1].callArgs,
 
       cacheHit,
       cacheMiss,
@@ -312,7 +314,7 @@ function memoize(func, _options = {}) {
   return functor;
 }
 
-const shallowTest = (a, b, ...errorMessage) => {
+const shallowTest = (a, b, onTrigger, ...errorMessage) => {
   if (a === b) {
     return true;
   }
@@ -359,32 +361,38 @@ const shallowTest = (a, b, ...errorMessage) => {
   }
 
   if (errors.length && errorMessage) {
-    console.error.apply(console, errorMessage.map(err => typeof err === 'string' ? err.replace('$KEYS$', errors.join(',')) : err))
+    const error = errorMessage.map(err => typeof err === 'string' ? err.replace('$KEYS$', errors.join(',')) : err);
+    if (onTrigger) {
+      onTrigger(...error);
+    } else {
+      console.error(...error)
+    }
   }
   return !errors.length;
 };
 
 export const isThisPure = (fnCall, message = 'isThisPure') =>
-  shallowTest(fnCall(), fnCall(), message + ':result is not equal at [$KEYS$]');
+  shallowTest(fnCall(), fnCall(), false, message + ':result is not equal at [$KEYS$]');
 
-export const shallBePure = (fnCall, message = 'shouldBePure') => {
-  const memoizedUnsafe = memoize(fnCall);
-  const memoizedSafe = memoize(fnCall, {safe: true});
+export const shallBePure = (fnCall, {
+  message = 'shouldBePure',
+  checkAffectedKeys = true,
+  onTrigger = false
+} = {}) => {
+  const memoized = checkAffectedKeys ? memoize(fnCall, {safe: true}) : memoize(fnCall);
   let lastResult = null;
   let lastMemoizedResult = null;
 
   function functor(...args) {
-    memoizedSafe(...args);
+    const mresult = memoized(...args);
+    const fresult = fnCall(...memoized.cacheStatistics.lastCallArgs);
 
-    const mresult = memoizedUnsafe(...args);
-    const fresult = fnCall(...args);
-
-    functor.isPure = !memoizedSafe.cacheStatistics.memoizationDisabled;
+    functor.isPure = !memoized.cacheStatistics.memoizationDisabled;
 
     if (functor.isPure && lastResult) {
       if (lastResult !== fresult) {
         if (lastMemoizedResult === mresult) {
-          functor.isPure = shallowTest(lastResult, fresult, message, fnCall, '`s result is not equal at [$KEYS$], while should be equal');
+          functor.isPure = shallowTest(lastResult, fresult, onTrigger, message, fnCall, '`s result is not equal at [$KEYS$], while should be equal');
         }
       }
     }
@@ -393,13 +401,15 @@ export const shallBePure = (fnCall, message = 'shouldBePure') => {
     return fresult;
   }
 
+  transferProperties(fnCall, functor);
+
   return functor;
 };
 
-export const shouldBePure = (fnCall, message = 'shouldBePure') => (
+export const shouldBePure = (fnCall, options) => (
   process.env.NODE_ENV === 'production'
     ? fnCall
-    : shallBePure(fnCall, message)
+    : shallBePure(fnCall, options)
 );
 
 export default memoize;

@@ -321,11 +321,11 @@ describe('memoize-proxy', () => {
 
     const f = memoize(f1);
     expect(f({a: 1, b: 1})).to.be.deep.equal({a: 1, b: 1});
-    expect(f.cacheStatistics.cache[0][1][0].useAffected).to.be.deep.equal([".a"]);
-    expect(f.cacheStatistics.cache[0][1][0].resultAffected).to.be.deep.equal([""]);
+    expect(f.cacheStatistics.cache[0].affected[0].useAffected).to.be.deep.equal([".a"]);
+    expect(f.cacheStatistics.cache[0].affected[0].resultAffected).to.be.deep.equal([""]);
     expect(f({a: 1, b: 2})).to.be.deep.equal({a: 1, b: 2});
-    expect(f.cacheStatistics.cache[0][1][0].useAffected).to.be.deep.equal([".a"]);
-    expect(f.cacheStatistics.cache[0][1][0].resultAffected).to.be.deep.equal([""]);
+    expect(f.cacheStatistics.cache[0].affected[0].useAffected).to.be.deep.equal([".a"]);
+    expect(f.cacheStatistics.cache[0].affected[0].resultAffected).to.be.deep.equal([""]);
   })
 
   it('should maintain object equality', () => {
@@ -417,6 +417,33 @@ describe('memoize-proxy', () => {
       expect(test1.isPure).to.be.false;
     });
 
+    it('should pass memoization', () => {
+      let cache = {};
+      let order = 0;
+      const fun1 = (a) => {
+        if (a.v !== cache) {
+          order += a.k;
+        }
+        cache = a.v;
+        return a.v;
+      };
+      const A = {v: {v: 1}, k: 1};
+      const test1 = shouldBePure(fun1);
+
+
+      test1(A);
+      test1(A);
+      expect(order).to.be.equal(2);
+      expect(test1.isPure).to.be.true;
+
+      order = 0;
+      const test2 = shouldBePure(fun1, {checkAffectedKeys: false});
+      test2(A);
+      test2(A);
+      expect(order).to.be.equal(1);
+      expect(test2.isPure).to.be.true;
+    });
+
     it('should deep equal arguments', () => {
       const fun2 = (a) => ({key1: a});
       const test2 = shouldBePure(fun2);
@@ -492,5 +519,20 @@ describe('memoize-proxy', () => {
       test({a: 2});
       expect(test.isPure).to.be.false;
     });
+
+    it('should be possible to overload trigger', () => {
+      const fun = function (a) {
+        return [{a: a.a}]
+      };
+      const fn = sinon.stub();
+
+      const test = shouldBePure(fun, {
+        onTrigger: fn
+      });
+      test({a: 1});
+      test({a: 1});
+      expect(test.isPure).to.be.false;
+      sinon.assert.calledWith(fn, 'shouldBePure', fun, '`s result is not equal at [0], while should be equal');
+    })
   });
 });
