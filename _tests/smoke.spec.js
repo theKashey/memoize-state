@@ -396,12 +396,15 @@ describe('memoize-proxy', () => {
   });
 
   it('should report about spread operator', () => {
-    const mapState = ({a, ...rest}) => a;
+    const mapState = ({a, ...rest}) => rest;
     const fn = memoize(mapState);
     const spy = sinon.stub(console, "warn");
-    fn({a: 1, b: 1});
+    const result = fn({a: 1, b: 1});
+    expect(result).to.be.deep.equal({
+      b: 1
+    });
 
-    sinon.assert.calledWith(spy, 'memoize-state: object spread detected in ', mapState, '. Consider refactoring.');
+    sinon.assert.calledWith(spy, 'memoize-state: object spread detected in ', mapState, '. Keys affected: ', sinon.match.any, '. This is no-op.');
 
     spy.restore();
   });

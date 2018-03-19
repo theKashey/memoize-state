@@ -82,6 +82,15 @@ function deproxifyResult(result, affected, returnPureValue) {
   if (typeof result === 'object') {
     const sub = Array.isArray(result) ? [] : {};
     let altered = false;
+
+    if(Object.getOwnPropertyDescriptor(result,'__proxyequal_scanEnd')) {
+      Object.defineProperty(result, '__proxyequal_scanEnd', {
+        value: 'here was spread guard',
+        configurable: true,
+        enumerable: false,
+      });
+    }
+
     for (let i in result) {
       if (result.hasOwnProperty(i)) {
         const data = result[i];
@@ -116,13 +125,20 @@ function callIn(that, cache, args, func, memoizationDepth, proxyMap = []) {
     return undefined
   });
   const callArgs = args.map((arg, index) => proxies[index] ? proxies[index].state : arg);
+
+  //call the real function
   const preResult = func.call(that, ...callArgs);
-  let spreadDetected = false;
+  proxies.forEach(proxy => proxy && proxy.seal())
+
+  let spreadDetected = [];
   const affected = proxies
     .map(proxy => {
       if (proxy) {
-        spreadDetected |= proxy.spreadDetected;
+        if (proxy.spreadDetected !== false) {
+          spreadDetected.push(proxy.spreadDetected);
+        }
         const affected = proxy.affected || emptyArray;
+
         return {
           useAffected: [...affected],
           resultAffected: []
@@ -138,9 +154,13 @@ function callIn(that, cache, args, func, memoizationDepth, proxyMap = []) {
     updateCacheLine(cache, 0, cacheLine);
   }
 
-  if (spreadDetected) {
+  if (spreadDetected.length > 0) {
     if (process.env.NODE_ENV !== 'production') {
-      console.warn('memoize-state: object spread detected in ', func, '. Consider refactoring.');
+      console.warn(
+        'memoize-state: object spread detected in ', func,
+        '. Keys affected: ', spreadDetected.map(key => key ? key : 'root'),
+        '. This is no-op.'
+      );
     }
   }
 
