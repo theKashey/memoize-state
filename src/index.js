@@ -83,7 +83,7 @@ function deproxifyResult(result, affected, returnPureValue) {
     const sub = Array.isArray(result) ? [] : {};
     let altered = false;
 
-    if(Object.getOwnPropertyDescriptor(result,'__proxyequal_scanEnd')) {
+    if(result && Object.getOwnPropertyDescriptor(result,'__proxyequal_scanEnd')) {
       Object.defineProperty(result, '__proxyequal_scanEnd', {
         value: 'here was spread guard',
         configurable: true,
