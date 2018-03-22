@@ -1,6 +1,6 @@
 {
   "name": "memoize-state",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "A magic memoization function",
   "main": "lib/index.js",
   "types": "memoize.d.ts",
