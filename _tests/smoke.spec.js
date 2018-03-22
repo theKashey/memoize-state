@@ -296,8 +296,8 @@ describe('memoize-proxy', () => {
     expect(f2(1, 2, 3)).to.be.equal(3);
     expect(ft(1, 2, 3)).to.be.equal(1);
 
-    expect(f1.name).to.be.equal('function1');
-    expect(ft.name).to.be.equal('functionT');
+    expect(f1.name).to.be.equal('ms_function1');
+    expect(ft.name).to.be.equal('ms_functionT');
     expect(ft.someProp).to.be.equal(42);
   });
 
@@ -308,9 +308,9 @@ describe('memoize-proxy', () => {
       return a;
     }
 
-    expect(memoize(fn).name).to.equal('fn');
-    expect(memoize(a => a).name).to.equal('');
-    expect(memoize(func).name).to.equal('func');
+    expect(memoize(fn).name).to.equal('ms_fn');
+    expect(memoize(a => a).name).to.equal('ms_');
+    expect(memoize(func).name).to.equal('ms_func');
     expect(String(memoize(func))).to.equal('/* memoized by memoize-state */\n' + func);
   });
 

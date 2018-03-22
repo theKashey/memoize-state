@@ -7,6 +7,7 @@ import {
   isProxyfied,
   getProxyKey
 } from 'proxyequal';
+import functionDouble from 'function-double';
 
 /*eslint no-console: ["error", { allow: ["warn", "error"] }] */
 
@@ -83,7 +84,7 @@ function deproxifyResult(result, affected, returnPureValue) {
     const sub = Array.isArray(result) ? [] : {};
     let altered = false;
 
-    if(result && Object.getOwnPropertyDescriptor(result,'__proxyequal_scanEnd')) {
+    if (result && Object.getOwnPropertyDescriptor(result, '__proxyequal_scanEnd')) {
       Object.defineProperty(result, '__proxyequal_scanEnd', {
         value: 'here was spread guard',
         configurable: true,
@@ -165,19 +166,6 @@ function callIn(that, cache, args, func, memoizationDepth, proxyMap = []) {
   }
 
   return result;
-}
-
-function transferProperties(source, target) {
-  const keys = Object.getOwnPropertyNames(source);
-
-  for (const key of keys) {
-    const descriptor = Object.getOwnPropertyDescriptor(source, key);
-    try {
-      Object.defineProperty(target, key, descriptor);
-    } catch (e) {
-      // nop
-    }
-  }
 }
 
 function compareAffected(a, b) {
@@ -281,18 +269,12 @@ function memoize(func, _options = {}) {
     return result;
   }
 
-  transferProperties(func, functor);
-
-  Object.defineProperty(functor, 'toString', {
-    configurable: true,
-    writable: false,
-    enumerable: false,
-    value: function toString() {
-      return '/* memoized by memoize-state */\n' + String(func);
-    },
+  const memoizedFunction = functionDouble(functor, func, {
+    toString: func => '/* memoized by memoize-state */\n' + String(func),
+    name: func => 'ms_' + func.name
   });
 
-  Object.defineProperty(functor, 'getAffectedPaths', {
+  Object.defineProperty(memoizedFunction, 'getAffectedPaths', {
     value: function () {
       const result = [];
       for (let line of cache) {
@@ -312,7 +294,7 @@ function memoize(func, _options = {}) {
     enumerable: false,
   });
 
-  Object.defineProperty(functor, 'cacheStatistics', {
+  Object.defineProperty(memoizedFunction, 'cacheStatistics', {
     get: () => ({
       ratio: cacheHit / cacheMiss,
       memoizationDisabled,
@@ -331,7 +313,7 @@ function memoize(func, _options = {}) {
     enumerable: false,
   });
 
-  return functor;
+  return memoizedFunction;
 }
 
 const shallowTest = (a, b, onTrigger, ...errorMessage) => {
@@ -421,9 +403,7 @@ export const shallBePure = (fnCall, {
     return fresult;
   }
 
-  transferProperties(fnCall, functor);
-
-  return functor;
+  return functionDouble(functor, fnCall);
 };
 
 export const shouldBePure = (fnCall, options) => (
