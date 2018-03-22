@@ -33,6 +33,11 @@ It will know, that it should react only state.value. _Perfect_.
 
 [![NPM](https://nodei.co/npm/memoize-state.png?downloads=true&stars=true)](https://nodei.co/npm/memoize-state/)
 
+## Implementations
+- [React-memoize](https://github.com/theKashey/react-memoize) - magic memoization for React, componentWillReceiveProps optization, and selection from context.
+- [beautiful-react-redux](https://github.com/theKashey/beautiful-react-redux) - instant memoization for React-Redux
+- your project!  
+
 # API
 * `memoizeState(function, options)` - creates memoized variant of a function.
 - Name, length (argument count), and any other own key will be transferred to memoized result
