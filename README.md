@@ -1,5 +1,7 @@
 memoize-state
 =====
+
+[![Join the chat at https://gitter.im/thekashey/memoize-state](https://badges.gitter.im/thekashey/memoize-state.svg)](https://gitter.im/thekashey/memoize-state?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![CircleCI status](https://img.shields.io/circleci/project/github/theKashey/memoize-state/master.svg?style=flat-square)](https://circleci.com/gh/theKashey/memoize-state/tree/master)
 
 >Caching (aka memoization) is very powerful optimization technique - however it only makes sense when maintaining the cache itself and looking up cached results is cheaper than performing computation itself again.
