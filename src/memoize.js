@@ -101,7 +101,7 @@ export function memoize(func, _options = {}) {
     get: () => ({
       ratio: cacheHit / cacheMiss,
       memoizationDisabled,
-      lastCallArgs: cache[cache.length - 1].callArgs,
+      lastCallArgs: cache.length && cache[cache.length - 1].callArgs,
 
       cacheHit,
       cacheMiss,

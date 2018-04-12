@@ -381,7 +381,18 @@ describe('memoize-proxy', () => {
 
     expect(result21).to.be.equal(result22)
     expect(result22).not.to.be.equal(result23);
-  })
+  });
+
+  it('memoization sideeffect', () => {
+    var A = [{a: 1}, {a: 2}, {a: 3}];
+    const f1 = memoize((obj, order) => obj.sort((a, b) => order * (a.a - b.a)));
+    expect(isProxyfied(f1(A, -1)[0])).to.be.false;
+
+    expect(f1(A, -1)).to.be.deep.equal([{a: 3}, {a: 2}, {a: 1}]);
+    expect(f1(A, 1)).to.be.deep.equal([{a: 1}, {a: 2}, {a: 3}]);
+    expect(f1(A, -1)).to.be.deep.equal([{a: 3}, {a: 2}, {a: 1}]);
+    expect(f1(A, 1)).to.be.deep.equal([{a: 1}, {a: 2}, {a: 3}]);
+  });
 
   it('isThisPure', () => {
     var array = [1, 2, 3];

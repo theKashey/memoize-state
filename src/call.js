@@ -9,17 +9,24 @@ import {updateCacheLine} from "./cache";
 const nothing = 'PROXY_EQUAL_NOTHING';
 const emptyArray = [];
 
-function addAffected(affected, object) {
+function addAffected(callGeneration, affected, object) {
   const key = getProxyKey(object);
-  affected[key.fingerPrint].resultAffected.push(key.suffix);
+  if(key.fingerPrint.callGeneration===callGeneration) {
+    affected[key.fingerPrint.index].resultAffected.push(key.suffix);
+    return true;
+  }
+  return false;
 }
 
-function deproxifyResult(result, affected, returnPureValue) {
+function deproxifyResult(callGeneration, result, affected, returnPureValue, deepDive = false) {
 
   const isInProxy = isProxyfied(result);
   if (isInProxy) {
-    addAffected(affected, result);
-    return deproxify(result);
+    if(addAffected(callGeneration, affected, result)) {
+      const preResult = deproxify(result);
+      //return preResult;
+      return deepDive ? preResult : deproxifyResult(callGeneration, preResult, affected, true, true);
+    }
   }
 
   if (typeof result === 'object') {
@@ -37,7 +44,7 @@ function deproxifyResult(result, affected, returnPureValue) {
     for (let i in result) {
       if (result.hasOwnProperty(i)) {
         const data = result[i];
-        const newResult = deproxifyResult(data, affected, false);
+        const newResult = deproxifyResult(callGeneration, data, affected, false, deepDive);
         if (data && newResult !== nothing) {
           altered = true;
           sub[i] = newResult
@@ -60,7 +67,7 @@ export function callIn(that, cache, args, func, memoizationDepth, proxyMap = [])
     if (arg && typeof arg === 'object') {
       const map = proxyMap[index];
       if (!map) {
-        return proxyMap[index] = proxyState(arg, index);
+        return proxyMap[index] = proxyState(arg, {callGeneration:proxyMap,index});
       }
       map.reset();
       return map.replaceState(arg);
@@ -89,7 +96,7 @@ export function callIn(that, cache, args, func, memoizationDepth, proxyMap = [])
       }
       return undefined;
     });
-  const result = deproxifyResult(preResult, affected, true);
+  const result = deproxifyResult(proxyMap, preResult, affected, true);
   const cacheLine = {args, affected, result, callArgs};
   if (cache.length < memoizationDepth) {
     cache.push(cacheLine)
