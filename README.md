@@ -101,6 +101,39 @@ const mapStateToProps = memoize((state, props) => {
 });
 ```
 
+#### Memoized composition
+You can use compose(flow, flowRight) to pipe result from one memoized function to another.
+```js
+import {memoizedFlow} from 'memoize-state';
+
+// memoizedFlow will merge result with the current input
+// thus you can not import and not return all the keys
+// and memoization will work
+const sequence = memoizedFlow([
+  ({a,b}) => ({sumAB: a+b}),
+  ({a,c}) => ({sumAC: a+c}),
+  ({sumAB, sumAC}) => ({result: sumAB+sumAC})
+]);
+
+sequence({a:1, b:1, c:1}) === ({a:1, b:1, c:1, sumAB: 2, sumAC: 2, result: 4})
+
+//----------------
+
+import flow from 'lodash.flow';
+
+// You have to rethrow all the variables you might need in the future
+// and memoization will not properly work, as long step2 will be regenerated then you will change b
+// as long it depends on sumAB from step1
+const sequence = flow([
+  ({a,b, c}) => ({sumAB: a+b, a,c}),
+  ({a,c, sumAB}) => ({sumAC: a+c, sumAB}),
+  ({sumAB, sumAC}) => ({result: sumAB+sumAC})
+]);
+
+sequence({a:1, b:1, c:1}) === ({result: 4})
+```
+
+##### Additional API
 You also could use memoize-state to double check your selectors.
 ```js
 import {shouldBePure} from 'memoize-state';
