@@ -22,9 +22,10 @@ Lets imagine some complex function.
  const fn = memoize(
    (number, state, string) => ({result:state[string].value + number})
  )
- fn(1, { value: 1, otherValue: 1}, 'value');
- fn(1, { value: 1, otherValue: 2 }, 'value');
- fn(1, { value: 1, somethingElse:3 }, 'value');
+let firstValue = fn(1, { value: 1, otherValue   : 1 }, 'value'); // first call
+  firstValue === fn(1, { value: 1, otherValue   : 2 }, 'value'); // "nothing" changed
+  firstValue === fn(1, { value: 1, somethingElse: 3 }, 'value'); // "nothing" changed
+  firstValue !== fn(2, { value: 1, somethingElse: 3 }, 'value'); // something important changed
 ```
 All _ordinal_ memoization libraries will drop cache each time, as long `state` is different each time.
 More of it - they will return a unique object each time, as long the function is returning a new object each time.
