@@ -9,29 +9,31 @@ memoize-state
 
 
 
-__Reselect__? Memoize-one? Most of memoization libraries remeber the parameters you provided, not how you use them. 
-As result is not easy to achive high cache hit ratio, cos:
-- it is hard to create stuctured selectors
-- you are changing a value, not changing values inside it.
+__Reselect__? Memoize-one? Most of memoization libraries remembers the parameters you provided, not what you did inside. 
+Sometimes is not easy to achive high cache hit ratio. Sometimes you have to _think_ about how to properly dissolve computation into the _memoizable_ parts.
 
 **I don't want to think how to use memoization, I want to use memoization!**
 
-Memoize-state is built to memoize more complex situations, even if it is cheaper to perform a computation.
-Just because one cheap computation can cause a recomputation cascade.
+Memoize-state is built to memoize more complex situations, even the ones which are faster to recomoute, than to deside that recalculation is not needed.
+Just because one cheap computation can cause a redraw/reflow/recomputation cascade for a whole application.
 
 Lets imagine some complex function.
 ```js
- const fn = memoize((number, state, string) => ({result:state[string].value + number}))
+ const fn = memoize(
+   (number, state, string) => ({result:state[string].value + number})
+ )
  fn(1, { value: 1, otherValue: 1}, 'value');
  fn(1, { value: 1, otherValue: 2 }, 'value');
- fn(1, { value: 1 }, 'value');
+ fn(1, { value: 1, somethingElse:3 }, 'value');
 ```
 All _ordinal_ memoization libraries will drop cache each time, as long `state` is different each time.
-More of it - it will return a unique object each time.
+More of it - they will return a unique object each time, as long the function is returning a new object each time.
 But not today!
 
-Memoize-state memoizes used __state__ parts, using the same __magic__, as you can found in __MobX__.
+Memoize-state memoizes used __state__ parts, using the same __magic__, as you can found in __MobX__ or __immer__.
 It will know, that it should react only state.value. _Perfect_.
+
+Now you able just to write function AS YOU WANT. Memoize-state will detect all _really_ used arguments, variables and keys, and then - react only to _right_ changes.
 
 [![NPM](https://nodei.co/npm/memoize-state.png?downloads=true&stars=true)](https://nodei.co/npm/memoize-state/)
 
