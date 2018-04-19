@@ -431,9 +431,17 @@ describe('memoize-proxy', () => {
     expect(result22).not.to.be.equal(result23);
   });
 
-  it('memoization sideeffect', () => {
+  it('memoization sideeffect has no sence for original array', () => {
     var A = [{a: 1}, {a: 2}, {a: 3}];
     const f1 = memoize((obj, order) => obj.sort((a, b) => order * (a.a - b.a)));
+    expect(isProxyfied(f1(A, -1)[0])).to.be.false;
+
+    expect(f1(A, -1)).to.be.deep.equal([{a: 1}, {a: 2}, {a: 3}]);
+  });
+
+  it('memoization sideeffect, works with sliced array', () => {
+    var A = [{a: 1}, {a: 2}, {a: 3}];
+    const f1 = memoize((obj, order) => obj.slice().sort((a, b) => order * (a.a - b.a)));
     expect(isProxyfied(f1(A, -1)[0])).to.be.false;
 
     expect(f1(A, -1)).to.be.deep.equal([{a: 3}, {a: 2}, {a: 1}]);

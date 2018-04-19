@@ -174,6 +174,15 @@ Yes, you could.
 
 But memoize-state could disable another underlying memoizations libraries.
   
+# Warning!
+Not everything is simple. Memoize-state works on copies of original object, __returning the original
+object, if you have returned a copy__.
+
+That means - if you get an array. __sort it__ and return result - you will return unsorted result.
+
+`Input has to be immutable`, don't sort it, don't mutate it, don't forget to Array.slice().
+but you are the right person to watch over it.  
+  
 ## Speed
 
 Uses `ES6 Proxy` underneath to detect used branches of a state (as `MobX`).
