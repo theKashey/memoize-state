@@ -4875,9 +4875,9 @@ proxy-polyfill@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/proxy-polyfill/-/proxy-polyfill-0.2.0.tgz#3c9d2a0fe7682c3903674e304f5d27797b711446"
 
-proxyequal@^1.5.0:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/proxyequal/-/proxyequal-1.5.0.tgz#634909ae7441860b5f23486218acc00018126562"
+proxyequal@^1.5.2:
+  version "1.5.2"
+  resolved "https://registry.yarnpkg.com/proxyequal/-/proxyequal-1.5.2.tgz#1f96c81d3cf335ced2e0467f5a93a2d0a4301860"
   dependencies:
     search-trie "^1.0.0"
 
