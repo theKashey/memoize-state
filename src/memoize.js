@@ -57,7 +57,7 @@ export function memoize(func, _options = {}) {
       }
 
       cacheMiss++;
-      result = callIn(this, cache, args, func, options.cacheSize, proxyMap);
+      result = callIn(this, cache, args, func, options.cacheSize, proxyMap, options.flags);
       executeTimes++;
 
       if (safeCache) {

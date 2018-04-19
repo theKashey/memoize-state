@@ -10,7 +10,8 @@
     "build": "babel src -d lib",
     "prepublish": "npm run build",
     "lint": "eslint src tests",
-    "lint:fix": "eslint src tests --fix"
+    "lint:fix": "eslint src tests --fix",
+    "size": "npm run build && size-limit"
   },
   "keywords": [
     "proxy",
@@ -35,7 +36,8 @@
     "memoize-one": "^3.0.1",
     "mocha": "^4.0.1",
     "proxy-polyfill": "^0.2.0",
-    "sinon": "^4.3.0"
+    "sinon": "^4.3.0",
+    "size-limit": "^0.17.0"
   },
   "repository": {
     "type": "git",

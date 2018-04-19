@@ -240,6 +240,54 @@ describe('memoize-proxy', () => {
     expect(result2).not.to.be.equal(mm({a: 1, b: '!'}, {extract: 'a', stuff: '!'}));
   });
 
+  it('cyclic deps', () => {
+    const fn1 = memoize(state => state);
+    const fn2 = memoize(state => {
+      const R = { state: state};
+      R.self = R;
+      return R;
+    });
+    const fn3 = memoize(state => {
+      const R = { state: state.value};
+      R.self = R;
+      return R;
+    });
+
+    const A = { value:{x:1}};
+    A.self = A;
+    const result1 = fn1(A);
+
+    expect(result1).to.be.equal(A);
+
+    const result2 = fn2(A);
+    expect(result2.state).to.be.equal(A);
+    expect(result2.self.state).to.be.equal(A);
+
+    const result3 = fn3(A);
+    expect(result3.state).to.be.equal(A.value);
+    expect(result3.self.state).to.be.equal(A.value);
+  });
+
+  it('shouldDive optimizations', () => {
+    const fn1 = memoize(state => ({yes: {value: state}, no: {value: state}}));
+    const fn2 = memoize(state => ({
+      yes: {value: state},
+      no: {value: state}
+    }), {flags: {deproxifyShouldDive: (data,key) => key === 'no' && data.value.v===42 }});
+
+    const A = {v: 42};
+    const result1 = fn1(A);
+    const result2 = fn2(A);
+
+    expect(result1.yes.value).to.be.equal(A);
+    expect(result1.no.value).to.be.equal(A);
+
+    expect(result2.yes.value.v).to.be.equal(42);
+    expect(result2.yes.value).not.to.be.equal(A);
+    expect(result2.no.value).to.be.equal(A);
+
+  })
+
   describe('deproxyfy stuff', () => {
     it('when top level object', () => {
       const f = memoize(({data}) => data);

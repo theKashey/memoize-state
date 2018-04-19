@@ -11,18 +11,26 @@ const emptyArray = [];
 
 function addAffected(callGeneration, affected, object) {
   const key = getProxyKey(object);
-  if(key.fingerPrint.callGeneration===callGeneration) {
+  if (key.fingerPrint.callGeneration === callGeneration) {
     affected[key.fingerPrint.index].resultAffected.push(key.suffix);
     return true;
   }
   return false;
 }
 
+let cycleMap = null;
+let userShouldDive = null;
+const returnTrue = () => true;
+
+let shouldDive = (line, key, object) => (
+  typeof line === 'object' && (isProxyfied(line) || userShouldDive(line, key, object))
+);
+
 function deproxifyResult(callGeneration, result, affected, returnPureValue, deepDive = false) {
 
   const isInProxy = isProxyfied(result);
   if (isInProxy) {
-    if(addAffected(callGeneration, affected, result)) {
+    if (addAffected(callGeneration, affected, result)) {
       const preResult = deproxify(result);
       //return preResult;
       return deepDive ? preResult : deproxifyResult(callGeneration, preResult, affected, true, true);
@@ -44,8 +52,21 @@ function deproxifyResult(callGeneration, result, affected, returnPureValue, deep
     for (let i in result) {
       if (result.hasOwnProperty(i)) {
         const data = result[i];
-        const newResult = deproxifyResult(callGeneration, data, affected, false, deepDive);
-        if (data && newResult !== nothing) {
+        let newResult = data;
+        if (data && shouldDive(data, i, result)) {
+          if (typeof data === 'object') {
+            if (!cycleMap.has(data)) {
+              cycleMap.set(data, nothing);
+              newResult = deproxifyResult(callGeneration, data, affected, false, deepDive);
+              cycleMap.set(data, newResult);
+            } else {
+              newResult = cycleMap.get(data)
+            }
+          } else {
+            newResult = deproxifyResult(callGeneration, data, affected, false, deepDive);
+          }
+        }
+        if (data && newResult !== nothing && newResult !== data) {
           altered = true;
           sub[i] = newResult
         } else {
@@ -62,12 +83,12 @@ function deproxifyResult(callGeneration, result, affected, returnPureValue, deep
   return returnPureValue ? result : nothing;
 }
 
-export function callIn(that, cache, args, func, memoizationDepth, proxyMap = []) {
+export function callIn(that, cache, args, func, memoizationDepth, proxyMap = [], options = {}) {
   const proxies = args.map((arg, index) => {
     if (arg && typeof arg === 'object') {
       const map = proxyMap[index];
       if (!map) {
-        return proxyMap[index] = proxyState(arg, {callGeneration:proxyMap,index});
+        return proxyMap[index] = proxyState(arg, {callGeneration: proxyMap, index});
       }
       map.reset();
       return map.replaceState(arg);
@@ -96,6 +117,9 @@ export function callIn(that, cache, args, func, memoizationDepth, proxyMap = [])
       }
       return undefined;
     });
+
+  cycleMap = new WeakMap();
+  userShouldDive = options.deproxifyShouldDive || returnTrue;
   const result = deproxifyResult(proxyMap, preResult, affected, true);
   const cacheLine = {args, affected, result, callArgs};
   if (cache.length < memoizationDepth) {
