@@ -31,15 +31,15 @@ All _ordinal_ memoization libraries will drop cache each time, as long `state` i
 More of it - they will return a unique object each time, as long the function is returning a new object each time.
 But not today!
 
-Memoize-state memoizes used __state__ parts, using the same __magic__, as you can found in __MobX__ or __immer__.
-It will know, that it should react only state.value. _Perfect_.
+Memoize-state memoizes tracks used __state__ parts, using the same __magic__, as you can found in __MobX__ or __immer__.
+It will know, that it should react only on some `state.value1` change, but not `value2`. _Perfect_.
 
-Now you able just to write function AS YOU WANT. Memoize-state will detect all _really_ used arguments, variables and keys, and then - react only to _right_ changes.
+Now you able just to write functions AS YOU WANT. Memoize-state will detect all _really_ used arguments, variables and keys, and then - react only to the _right_ changes.
 
 [![NPM](https://nodei.co/npm/memoize-state.png?downloads=true&stars=true)](https://nodei.co/npm/memoize-state/)
 
 ## Implementations
-- [React-memoize](https://github.com/theKashey/react-memoize) - magic memoization for React, componentWillReceiveProps optization, and selection from context.
+- [React-memoize](https://github.com/theKashey/react-memoize) - magic memoization for React, componentWillReceiveProps optization, selection from context, whole SFC memoization.
 - [beautiful-react-redux](https://github.com/theKashey/beautiful-react-redux) - instant memoization for React-Redux
 - your project!  
 
@@ -51,12 +51,12 @@ Now you able just to write function AS YOU WANT. Memoize-state will detect all _
 - result function will have `cacheStatistics` method. JFYI.
 
 ### Possible options
-- cacheSize, default 1. The size of cache.
-- shallowCheck, default true. Perform shallow equal between arguments.
-- equalCheck, default true. Perform deep proxyequal comparision.
-- strictArity, default false. Limit arguments count to the function default.
-- nestedEquality, default true. Keep the object equality for sub-proxies.
-- safe, default false. Activate the `safe` memoization mode. See below. 
+- `cacheSize`, default 1. The size of the cache.
+- `shallowCheck`, default true. Perform shallow equal between arguments.
+- `equalCheck`, default true. Perform deep proxyequal comparision.
+- `strictArity`, default false. Limit arguments count to the function default.
+- `nestedEquality`, default true. Keep the object equality for sub-proxies.
+- `safe`, default false. Activate the `safe` memoization mode. See below. 
 
 ### MapStateToProps
 You know - it should be a __pure function__, returning the same results for the same arguments. 
@@ -105,7 +105,7 @@ const mapStateToProps = memoize((state, props) => {
 ```
 
 #### Memoized composition
-You can use compose(flow, flowRight) to pipe result from one memoized function to another.
+You can use compose(flow, flowRight) to pipe result from one memoized function to another. But better to use `flow`
 ```js
 import {memoizedFlow} from 'memoize-state';
 
