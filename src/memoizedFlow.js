@@ -1,6 +1,16 @@
-import memoizeState from './memoize';
+import {memoize} from './memoize';
 
-export const memoizedFlow = (functions) => {
-  const flow = functions.map(fn => memoizeState(fn));
-  return (input => flow.reduce((value, fn) => Object.assign({}, value, fn(value) || {}), input));
+const applyFunctions = (value, fn) => Object.assign({}, value, fn(value) || {});
+
+const memoizedFlow = (functions) => {
+  const flow = functions.map(memoize);
+  return (input) => flow.reduce(applyFunctions, input);
+};
+
+// alias
+const memoizedPipe = memoizedFlow;
+
+export {
+  memoizedFlow,
+  memoizedPipe,
 };

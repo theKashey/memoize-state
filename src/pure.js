@@ -1,5 +1,5 @@
 import functionDouble from 'function-double';
-import {shallowTest} from "./utils";
+import {shallowTest} from './utils';
 import {memoize} from './memoize';
 
 export const isThisPure = (fnCall, message = 'isThisPure') =>
