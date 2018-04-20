@@ -1,7 +1,6 @@
 import {memoize} from './memoize';
 import {shallBePure, shouldBePure, isThisPure} from './pure';
-import {memoizedFlow, memoizedPipe} from './memoizedFlow';
-import {memoizedFlowRight, memoizedCompose} from './memoizedFlow';
+import {memoizedFlow, memoizedPipe, memoizedFlowRight, memoizedCompose} from './memoizedFlow';
 
 export {
   shouldBePure,

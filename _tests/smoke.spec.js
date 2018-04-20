@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import {isProxyfied} from 'proxyequal';
 import sinon from 'sinon';
-import memoize, {shouldBePure, isThisPure} from '../src/index';
+import memoize, {shouldBePure, isThisPure, memoizedFlow, memoizedFlowRight} from '../src/index';
 
 describe('memoize-proxy', () => {
   it('memoize once', () => {
@@ -243,17 +243,17 @@ describe('memoize-proxy', () => {
   it('cyclic deps', () => {
     const fn1 = memoize(state => state);
     const fn2 = memoize(state => {
-      const R = { state: state};
+      const R = {state: state};
       R.self = R;
       return R;
     });
     const fn3 = memoize(state => {
-      const R = { state: state.value};
+      const R = {state: state.value};
       R.self = R;
       return R;
     });
 
-    const A = { value:{x:1}};
+    const A = {value: {x: 1}};
     A.self = A;
     const result1 = fn1(A);
 
@@ -273,7 +273,7 @@ describe('memoize-proxy', () => {
     const fn2 = memoize(state => ({
       yes: {value: state},
       no: {value: state}
-    }), {flags: {deproxifyShouldDive: (data,key) => key === 'no' && data.value.v===42 }});
+    }), {flags: {deproxifyShouldDive: (data, key) => key === 'no' && data.value.v === 42}});
 
     const A = {v: 42};
     const result1 = fn1(A);
@@ -605,4 +605,50 @@ describe('memoize-proxy', () => {
       sinon.assert.calledWith(fn, 'shouldBePure', fun, '`s result is not equal at [0], while should be equal');
     })
   });
+});
+
+describe('flow', () => {
+  it('flow/pipe', () => {
+    const add = sinon.spy(state => ({value: state.value + 1}));
+    const mul = sinon.spy(state => ({value: state.value * 2, extra: 1}));
+    const fn = memoizedFlow([
+      add,
+      mul
+    ]);
+
+    expect(fn({value: 1})).to.be.deep.equal({value: 4, extra: 1});
+    sinon.assert.calledOnce(add);
+    sinon.assert.calledOnce(mul);
+
+    expect(fn({value: 1, otherValue: 0})).to.be.deep.equal({value: 4, extra: 1, otherValue: 0});
+    sinon.assert.calledOnce(add);
+    sinon.assert.calledOnce(mul);
+
+    expect(fn({value: 2, otherValue: 1})).to.be.deep.equal({value: 6, extra: 1, otherValue: 1});
+    sinon.assert.calledTwice(add);
+    sinon.assert.calledTwice(mul);
+
+  })
+
+  it('flowRight/pipe', () => {
+    const add = sinon.spy(state => ({value: state.value + 1}));
+    const mul = sinon.spy(state => ({value: state.value * 2, extra: 1}));
+    const fn = memoizedFlowRight([
+      add,
+      mul
+    ]);
+
+    expect(fn({value: 1})).to.be.deep.equal({value: 3, extra: 1});
+    sinon.assert.calledOnce(add);
+    sinon.assert.calledOnce(mul);
+
+    expect(fn({value: 1, otherValue: 0})).to.be.deep.equal({value: 3, extra: 1, otherValue: 0});
+    sinon.assert.calledOnce(add);
+    sinon.assert.calledOnce(mul);
+
+    expect(fn({value: 2, otherValue: 1})).to.be.deep.equal({value: 5, extra: 1, otherValue: 1});
+    sinon.assert.calledTwice(add);
+    sinon.assert.calledTwice(mul);
+
+  })
 });

@@ -106,8 +106,10 @@ const mapStateToProps = memoize((state, props) => {
 
 #### Memoized composition
 You can use compose(flow, flowRight) to pipe result from one memoized function to another. But better to use `flow`
+
+! All functions accepts __Object__ as input and return __Object as output.
 ```js
-import {memoizedFlow} from 'memoize-state';
+import {memoizedFlow, memoizedFlowRight, memoizedPipe, memoizedCompose} from 'memoize-state';
 
 // memoizedFlow will merge result with the current input
 // thus you can not import and not return all the keys
@@ -135,6 +137,10 @@ const sequence = flow([
 
 sequence({a:1, b:1, c:1}) === ({result: 4})
 ```
+
+- `memoizedFlow` is equal to `memoizedPipe`, and applies functions from first to last.
+- `memoizedFlowRight` is equal to `memoizedCompose`, and applies functions from last to right(right).
+
 
 ##### Additional API
 You also could use memoize-state to double check your selectors.

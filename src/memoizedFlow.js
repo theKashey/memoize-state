@@ -7,10 +7,16 @@ const memoizedFlow = (functions) => {
   return (input) => flow.reduce(applyFunctions, input);
 };
 
-// alias
+const memoizedFlowRight = (functions) => memoizedFlow(Array.from(functions).reverse());
+
+// aliases
 const memoizedPipe = memoizedFlow;
+const memoizedCompose = memoizedFlowRight;
 
 export {
+  memoizedFlowRight,
+  memoizedCompose,
+
   memoizedFlow,
   memoizedPipe,
 };

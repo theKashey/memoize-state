@@ -3,7 +3,7 @@
   "version": "1.4.2",
   "description": "A magic memoization function",
   "main": "lib/index.js",
-  "types": "memoize.d.ts",
+  "types": "memoize-state.d.ts",
   "scripts": {
     "test": "npm run test:pick -- '_tests/**/*spec.js'",
     "test:pick": "BABEL_ENV=cjs mocha --compilers js:babel-core/register",
