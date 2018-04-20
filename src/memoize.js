@@ -1,8 +1,8 @@
 import {collectValuables} from 'proxyequal';
 import functionDouble from 'function-double';
-import {shallowEqualHit} from "./cache";
-import {callIn} from "./call";
-import {isolatedCall, purityCheck} from "./utils";
+import {shallowEqualHit} from './cache';
+import {callIn} from './call';
+import {isolatedCall, purityCheck} from './utils';
 
 const defaultOptions = {
   cacheSize: 1,

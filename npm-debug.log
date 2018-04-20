@@ -1,0 +1,51 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/Users/Josh/.nvm/versions/node/v6.12.1/bin/node',
+1 verbose cli   '/Users/Josh/.nvm/versions/node/v6.12.1/bin/npm',
+1 verbose cli   'run',
+1 verbose cli   'test:pick',
+1 verbose cli   '--',
+1 verbose cli   '_tests/**/*spec.js' ]
+2 info using npm@3.10.10
+3 info using node@v6.12.1
+4 verbose run-script [ 'pretest:pick', 'test:pick', 'posttest:pick' ]
+5 info lifecycle memoize-state@1.4.2~pretest:pick: memoize-state@1.4.2
+6 silly lifecycle memoize-state@1.4.2~pretest:pick: no script for pretest:pick, continuing
+7 info lifecycle memoize-state@1.4.2~test:pick: memoize-state@1.4.2
+8 verbose lifecycle memoize-state@1.4.2~test:pick: unsafe-perm in lifecycle true
+9 verbose lifecycle memoize-state@1.4.2~test:pick: PATH: /Users/Josh/.nvm/versions/node/v6.12.1/lib/node_modules/npm/bin/node-gyp-bin:/Users/Josh/code/memoize-state/node_modules/.bin:/Users/Josh/code/memoize-state/node_modules/.bin:/Users/Josh/.config/yarn/link/node_modules/.bin:/Users/Josh/code/memoize-state/node_modules/.bin:/Users/Josh/.config/yarn/link/node_modules/.bin:/Users/Josh/.nvm/versions/node/v6.12.1/libexec/lib/node_modules/npm/bin/node-gyp-bin:/Users/Josh/.nvm/versions/node/v6.12.1/lib/node_modules/npm/bin/node-gyp-bin:/Users/Josh/.nvm/versions/node/v6.12.1/bin/node_modules/npm/bin/node-gyp-bin:/Users/Josh/.nvm/versions/node/v6.12.1/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/Josh/.local/bin
+10 verbose lifecycle memoize-state@1.4.2~test:pick: CWD: /Users/Josh/code/memoize-state
+11 silly lifecycle memoize-state@1.4.2~test:pick: Args: [ '-c',
+11 silly lifecycle   'BABEL_ENV=cjs mocha --compilers js:babel-core/register "_tests/**/*spec.js"' ]
+12 silly lifecycle memoize-state@1.4.2~test:pick: Returned: code: 8  signal: null
+13 info lifecycle memoize-state@1.4.2~test:pick: Failed to exec test:pick script
+14 verbose stack Error: memoize-state@1.4.2 test:pick: `BABEL_ENV=cjs mocha --compilers js:babel-core/register "_tests/**/*spec.js"`
+14 verbose stack Exit status 8
+14 verbose stack     at EventEmitter.<anonymous> (/Users/Josh/.nvm/versions/node/v6.12.1/lib/node_modules/npm/lib/utils/lifecycle.js:255:16)
+14 verbose stack     at emitTwo (events.js:106:13)
+14 verbose stack     at EventEmitter.emit (events.js:191:7)
+14 verbose stack     at ChildProcess.<anonymous> (/Users/Josh/.nvm/versions/node/v6.12.1/lib/node_modules/npm/lib/utils/spawn.js:40:14)
+14 verbose stack     at emitTwo (events.js:106:13)
+14 verbose stack     at ChildProcess.emit (events.js:191:7)
+14 verbose stack     at maybeClose (internal/child_process.js:920:16)
+14 verbose stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:230:5)
+15 verbose pkgid memoize-state@1.4.2
+16 verbose cwd /Users/Josh/code/memoize-state
+17 error Darwin 17.4.0
+18 error argv "/Users/Josh/.nvm/versions/node/v6.12.1/bin/node" "/Users/Josh/.nvm/versions/node/v6.12.1/bin/npm" "run" "test:pick" "--" "_tests/**/*spec.js"
+19 error node v6.12.1
+20 error npm  v3.10.10
+21 error code ELIFECYCLE
+22 error memoize-state@1.4.2 test:pick: `BABEL_ENV=cjs mocha --compilers js:babel-core/register "_tests/**/*spec.js"`
+22 error Exit status 8
+23 error Failed at the memoize-state@1.4.2 test:pick script 'BABEL_ENV=cjs mocha --compilers js:babel-core/register "_tests/**/*spec.js"'.
+23 error Make sure you have the latest version of node.js and npm installed.
+23 error If you do, this is most likely a problem with the memoize-state package,
+23 error not with npm itself.
+23 error Tell the author that this fails on your system:
+23 error     BABEL_ENV=cjs mocha --compilers js:babel-core/register "_tests/**/*spec.js"
+23 error You can get information on how to open an issue for this project with:
+23 error     npm bugs memoize-state
+23 error Or if that isn't available, you can get their info via:
+23 error     npm owner ls memoize-state
+23 error There is likely additional logging output above.
+24 verbose exit [ 1, true ]

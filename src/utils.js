@@ -1,4 +1,4 @@
-import {callIn} from "./call";
+import {callIn} from './call';
 
 function compareAffected(a, b) {
   if (!Array.isArray(a)) {

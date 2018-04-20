@@ -4,7 +4,7 @@ import {
   isProxyfied,
   getProxyKey
 } from 'proxyequal';
-import {updateCacheLine} from "./cache";
+import {updateCacheLine} from './cache';
 
 const nothing = 'PROXY_EQUAL_NOTHING';
 const emptyArray = [];
