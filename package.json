@@ -6,7 +6,9 @@
   "types": "memoize-state.d.ts",
   "scripts": {
     "test": "npm run test:pick -- '_tests/**/*spec.js'",
-    "test:ci": "BABEL_ENV=cjs nyc mocha --compilers js:babel-core/register --report lcovonly -- '_tests/**/*spec.js'",
+    "test:report": "nyc report --reporter=text-lcov > coverage.lcov",
+    "test:cov": "BABEL_ENV=cjs nyc mocha --compilers js:babel-core/register --report lcovonly -- '_tests/**/*spec.js'",
+    "test:ci":"npm run test:cov && npm run test:report",
     "test:pick": "BABEL_ENV=cjs mocha --compilers js:babel-core/register",
     "build": "babel src -d lib",
     "prepublish": "npm run build",
