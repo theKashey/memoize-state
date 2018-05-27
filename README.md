@@ -39,7 +39,7 @@ It will know, that it should react only on some `state.value1` change, but not `
 
 Now you able just to write functions AS YOU WANT. Memoize-state will detect all _really_ used arguments, variables and keys, and then - react only to the _right_ changes.
 
-[![NPM](https://nodei.co/npm/memoize-state.png?downloads=true&stars=true)](https://nodei.co/npm/memoize-state/)
+[![NPM](https://nodei.co/npm/memoize-state.png?downloads=true&stars=true)](https://nodei.co/npm/memoize-state/) [![Greenkeeper badge](https://badges.greenkeeper.io/theKashey/memoize-state.svg)](https://greenkeeper.io/)
 
 ## Implementations
 - [React-memoize](https://github.com/theKashey/react-memoize) - magic memoization for React, componentWillReceiveProps optization, selection from context, whole SFC memoization.
