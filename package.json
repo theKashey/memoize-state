@@ -38,11 +38,11 @@
     "fast-memoize": "^2.3.0",
     "lodash.memoize": "^4.1.2",
     "memoize-one": "^3.0.1",
-    "mocha": "^4.0.1",
+    "mocha": "^5.2.0",
     "nyc": "^11.8.0",
     "proxy-polyfill": "^0.2.0",
-    "sinon": "^4.3.0",
-    "size-limit": "^0.17.0"
+    "sinon": "^5.0.10",
+    "size-limit": "^0.18.1"
   },
   "repository": {
     "type": "git",
