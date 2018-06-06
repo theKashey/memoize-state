@@ -40,7 +40,7 @@
     "memoize-one": "^3.0.1",
     "mocha": "^5.2.0",
     "nyc": "^12.0.1",
-    "proxy-polyfill": "^0.2.0",
+    "proxy-polyfill": "^0.3.0",
     "sinon": "^5.0.10",
     "size-limit": "^0.18.1"
   },
