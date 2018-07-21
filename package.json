@@ -8,7 +8,7 @@
     "test": "npm run test:pick -- '_tests/**/*spec.js'",
     "test:report": "nyc report --reporter=text-lcov > coverage.lcov",
     "test:cov": "BABEL_ENV=cjs nyc mocha --compilers js:babel-core/register --report lcovonly -- '_tests/**/*spec.js'",
-    "test:ci":"npm run test:cov && npm run test:report",
+    "test:ci": "npm run test:cov && npm run test:report",
     "test:pick": "BABEL_ENV=cjs mocha --compilers js:babel-core/register",
     "build": "babel src -d lib",
     "prepublish": "npm run build",
@@ -53,7 +53,7 @@
   },
   "homepage": "https://github.com/theKashey/memoize-state#readme",
   "dependencies": {
-    "function-double": "^1.0.1",
-    "proxyequal": "^1.5.2"
+    "function-double": "^1.0.4",
+    "proxyequal": "^1.6.0"
   }
 }
