@@ -5,6 +5,7 @@ memoize-state
 [![CircleCI status](https://img.shields.io/circleci/project/github/theKashey/memoize-state/master.svg?style=flat-square)](https://circleci.com/gh/theKashey/memoize-state/tree/master)
 [![coverage-badge](https://img.shields.io/codecov/c/github/thekashey/memoize-state.svg?style=flat-square)](https://codecov.io/github/thekashey/memoize-state)
 [![version-badge](https://img.shields.io/npm/v/memoize-state.svg?style=flat-square)](https://www.npmjs.com/package/memoize-state)
+[![Greenkeeper badge](https://badges.greenkeeper.io/theKashey/memoize-state.svg)](https://greenkeeper.io/)
 
 
 >Caching (aka memoization) is very powerful optimization technique - however it only makes sense when maintaining the cache itself and looking up cached results is cheaper than performing computation itself again.
@@ -39,7 +40,7 @@ It will know, that it should react only on some `state.value1` change, but not `
 
 Now you able just to write functions AS YOU WANT. Memoize-state will detect all _really_ used arguments, variables and keys, and then - react only to the _right_ changes.
 
-[![NPM](https://nodei.co/npm/memoize-state.png?downloads=true&stars=true)](https://nodei.co/npm/memoize-state/)
+[![NPM](https://nodei.co/npm/memoize-state.png?downloads=true&stars=true)](https://nodei.co/npm/memoize-state/) 
 
 ## Implementations
 - [React-memoize](https://github.com/theKashey/react-memoize) - magic memoization for React, componentWillReceiveProps optization, selection from context, whole SFC memoization.
