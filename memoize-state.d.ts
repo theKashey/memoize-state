@@ -27,11 +27,27 @@ declare module 'memoize-state' {
          */
         nestedEquality: boolean,
         /**
-         * perform additional safe checks
+         * perform additional safe checks (this could produce cache-wiping side effect)
          * @default false
          */
         safe: boolean
     }
+
+    interface PureOptions {
+      /**
+       * message displayed
+       */
+      message?: string,
+      /**
+       * controls uber paranoidal "safe" check mode
+       */
+      checkAffectedKeys?: boolean,
+      /**
+       * will call on failure
+       */
+      onTrigger?: (...args: any[]) => void,
+    }
+
 
     export type NotRequired<T extends { [key: string]: any }> = {
         [K in keyof T]?: T[K];
@@ -88,12 +104,12 @@ declare module 'memoize-state' {
      * @param {T} fn
      * @return {T}
      */
-    export function shallBePure<T>(fn: T): T
+    export function shallBePure<T>(fn: T, options?: PureOptions): T
 
     /**
      * perform consistent checks, that fn is a pure function in DEV env only
      * @param {T} fn
      * @return {T}
      */
-    export function shouldBePure<T>(fn: T): T
+    export function shouldBePure<T>(fn: T, options?: PureOptions): T
 }
