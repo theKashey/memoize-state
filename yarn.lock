@@ -4070,9 +4070,9 @@ proxy-polyfill@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/proxy-polyfill/-/proxy-polyfill-0.3.0.tgz#385c13d1402d4ae1357b6e44652d9b8d6289b0ef"
 
-proxyequal@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/proxyequal/-/proxyequal-2.0.0.tgz#d0f971810ee21bb71414430f828dc461a5190e97"
+proxyequal@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/proxyequal/-/proxyequal-2.0.1.tgz#e568952784e2879d6ddc74c5c060eab191e52fb2"
   dependencies:
     search-trie "^1.0.0"
 

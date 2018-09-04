@@ -54,6 +54,6 @@
   "homepage": "https://github.com/theKashey/memoize-state#readme",
   "dependencies": {
     "function-double": "^1.0.4",
-    "proxyequal": "^2.0.0"
+    "proxyequal": "^2.0.1"
   }
 }
