@@ -53,7 +53,7 @@ export function memoize(func, _options = {}) {
       let safeCache;
       if (options.safe && !resultSafeChecked) {
         resultSafeChecked = true;
-        safeCache = isolatedCall([], args, func);
+        safeCache = isolatedCall([], args, func, options.isolatedCheck ? [] : proxyMap);
       }
 
       cacheMiss++;

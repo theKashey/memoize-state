@@ -21,8 +21,8 @@ function compareAffected(a, b) {
   return true;
 }
 
-export function isolatedCall(safeCache, args, func) {
-  callIn(this, safeCache, args, func, 1);
+export function isolatedCall(safeCache, args, func, proxyMap) {
+  callIn(this, safeCache, args, func, 1, proxyMap);
   return safeCache;
 }
 

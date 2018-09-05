@@ -8,9 +8,10 @@ export const isThisPure = (fnCall, message = 'isThisPure') =>
 export const shallBePure = (fnCall, {
   message = 'shouldBePure',
   checkAffectedKeys = true,
+  isolatedCheck = false,
   onTrigger = false
 } = {}) => {
-  const memoized = checkAffectedKeys ? memoize(fnCall, {safe: true}) : memoize(fnCall);
+  const memoized = checkAffectedKeys ? memoize(fnCall, {safe: true, isolatedCheck}) : memoize(fnCall);
   let lastResult = null;
   let lastMemoizedResult = null;
 

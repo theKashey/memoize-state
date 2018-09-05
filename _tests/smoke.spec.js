@@ -494,15 +494,22 @@ describe('memoize-proxy', () => {
         if (a.v !== cache) {
           order += a.k;
         }
+        order += a.k * 0;
         cache = a.v;
         return a.v;
       };
       const A = {v: {v: 1}, k: 1};
+      const B = {v: {v: 1}, k: 1};
       const test1 = shouldBePure(fun1);
 
 
       test1(A);
       test1(A);
+      test1(A);
+      expect(order).to.be.equal(1);
+      expect(test1.isPure).to.be.true;
+      test1(B);
+      test1(B);
       expect(order).to.be.equal(2);
       expect(test1.isPure).to.be.true;
 
@@ -526,9 +533,9 @@ describe('memoize-proxy', () => {
       expect(test2.isPure).to.be.true;
     });
 
-    it('pure memoization', () => {
+    it('pure clear memoization', () => {
       const fun3 = memoize(a => ({key1: a.map(a => a)}));
-      const test3 = shouldBePure(fun3);
+      const test3 = shouldBePure(fun3, {isolatedCheck: true});
       test3(A);
       test3(A);
       expect(test3.isPure).to.be.true;
@@ -536,6 +543,18 @@ describe('memoize-proxy', () => {
       expect(test3.isPure).to.be.true;
       test3([1, 2, 4]);
       expect(test3.isPure).to.be.true;
+    });
+
+    it('pure memoization', () => {
+      const fun3 = memoize(a => ({key1: a.map(a => a)}));
+      const test3 = shouldBePure(fun3);
+      test3(A);
+      //test3(A);
+      expect(test3.isPure).to.be.false;
+      test3([1, 2, 3]);
+      expect(test3.isPure).to.be.false;
+      test3([1, 2, 4]);
+      expect(test3.isPure).to.be.false;
     });
 
     it('shouldBePure', () => {

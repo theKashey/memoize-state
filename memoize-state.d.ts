@@ -43,6 +43,11 @@ declare module 'memoize-state' {
        */
       checkAffectedKeys?: boolean,
       /**
+       * controls how to check `purity`. true will perform two calls with shallow non equal arguments, bypassing some sorts of memoization
+       * false will call twice with the same arguments, detecting only internal memoizations
+       */
+      isolatedCheck?: boolean,
+      /**
        * will call on failure
        */
       onTrigger?: (...args: any[]) => void,
