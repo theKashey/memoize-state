@@ -27,7 +27,6 @@ let shouldDive = (line, key, object) => (
 );
 
 function deproxifyResult(callGeneration, result, affected, returnPureValue, deepDive = false) {
-
   const isInProxy = isProxyfied(result);
   if (isInProxy) {
     if (addAffected(callGeneration, affected, result)) {
@@ -49,8 +48,7 @@ function deproxifyResult(callGeneration, result, affected, returnPureValue, deep
       });
     }
 
-    for (let i in result) {
-      if (result.hasOwnProperty(i)) {
+    Object.keys(result).forEach( i => {
         const data = result[i];
         let newResult = data;
         if (data && shouldDive(data, i, result)) {
@@ -73,7 +71,8 @@ function deproxifyResult(callGeneration, result, affected, returnPureValue, deep
           sub[i] = data;
         }
       }
-    }
+    );
+
     if (altered) {
       return sub;
     }
