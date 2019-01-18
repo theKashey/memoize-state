@@ -462,7 +462,7 @@ describe('memoize-proxy', () => {
     expect(isThisPure(() => fun3(array))).to.be.true;
   });
 
-  it('should report about spread operator', () => {
+  it.skip('should report about spread operator', () => {
     const mapState = ({a, ...rest}) => rest;
     const fn = memoize(mapState);
     const spy = sinon.stub(console, "warn");
