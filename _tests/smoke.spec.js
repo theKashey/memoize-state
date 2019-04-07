@@ -286,7 +286,47 @@ describe('memoize-proxy', () => {
     expect(result2.yes.value).not.to.be.equal(A);
     expect(result2.no.value).to.be.equal(A);
 
-  })
+  });
+
+  describe('edge cases', () => {
+    it('partial key usage', () => {
+      const selector = memoize(s => {
+        return s.key1 + s.key2
+      });
+
+      const state = {
+        key1: "test",
+      };
+
+      expect(selector(state)).to.be.equal('testundefined');
+
+      const newState = {
+        key1: "test",
+        key2: "passes",
+      };
+
+      expect(selector(newState)).to.be.equal('testpasses');
+    });
+
+    it('Object.values', () => {
+      const selector = memoize(s =>
+        Object.values(s).join('')
+      );
+
+      const state = {
+        key1: "test",
+      };
+
+      expect(selector(state)).to.be.equal('test');
+
+      const newState = {
+        key1: "test",
+        key2: "passes",
+      };
+
+      expect(selector(newState)).to.be.equal('testpasses');
+    });
+  });
 
   describe('deproxyfy stuff', () => {
     it('when top level object', () => {
@@ -668,6 +708,5 @@ describe('flow', () => {
     expect(fn({value: 2, otherValue: 1})).to.be.deep.equal({value: 5, extra: 1, otherValue: 1});
     sinon.assert.calledTwice(add);
     sinon.assert.calledTwice(mul);
-
   })
 });
