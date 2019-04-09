@@ -208,66 +208,91 @@ But the major difference is
 - memoize-one are having __highest hitratio__, than means - it were able to "memoize" most of the cases
 ```text
 function of 3 arguments, all unchanged
-memoize-one     x         6563316 ops/sec ±1.50% (6 runs sampled)  hitratio 100% 2 /2432667
-lodash.memoize  x         2988552 ops/sec ±3.98% (5 runs sampled)  hitratio 100% 1 /3844342
-fast-memoize    x         1007010 ops/sec ±1.18% (6 runs sampled)  hitratio 100% 1 /4443629
-memoize-state   x         3753869 ops/sec ±1.33% (6 runs sampled)  hitratio 100% 1 /6175599
+base            x           10230 ops/sec ±2.63% (5 runs sampled)  hitratio 0% 5700 /5700
+memoize-one     x        24150462 ops/sec ±3.02% (6 runs sampled)  hitratio 100% 1 /14019795
+lodash.memoize  x         2954428 ops/sec ±4.02% (6 runs sampled)  hitratio 100% 1 /15818699
+fast-memoize    x         1065755 ops/sec ±3.22% (6 runs sampled)  hitratio 100% 1 /16243313
+memoize-state   x         4910783 ops/sec ±2.55% (5 runs sampled)  hitratio 100% 1 /18929141
 Fastest is memoize-one
 
+function of 1 arguments, object unchanged
+base            x       408704195 ops/sec ±0.55% (5 runs sampled)  hitratio 100% 0 /188881067
+memoize-one     x        77024718 ops/sec ±1.78% (6 runs sampled)  hitratio 100% 0 /221442642
+lodash.memoize  x         3776797 ops/sec ±1.55% (6 runs sampled)  hitratio 100% 0 /223654022
+fast-memoize    x        75375793 ops/sec ±3.08% (6 runs sampled)  hitratio 100% 0 /267664702
+memoize-state   x         5690401 ops/sec ±3.77% (5 runs sampled)  hitratio 100% 0 /271589669
+Fastest is base
+
+function of 1 arguments, object unchanged
+base            x       398167311 ops/sec ±0.50% (6 runs sampled)  hitratio 100% 0 /190155405
+memoize-one     x        76062398 ops/sec ±3.71% (6 runs sampled)  hitratio 100% 0 /231172341
+lodash.memoize  x         3734556 ops/sec ±6.70% (6 runs sampled)  hitratio 100% 0 /233243184
+fast-memoize    x        37234595 ops/sec ±2.30% (6 runs sampled)  hitratio 100% 0 /250419641
+memoize-state   x          639290 ops/sec ±6.09% (6 runs sampled)  hitratio 100% 0 /250718787
+Fastest is base
+
 function of 2 arguments, providing 3, all unchanged
-memoize-one     x         6077327 ops/sec ±1.53% (6 runs sampled)  hitratio 100% 2 /2534824
-lodash.memoize  x         2780103 ops/sec ±1.88% (6 runs sampled)  hitratio 100% 1 /3615601
-fast-memoize    x          928385 ops/sec ±4.59% (6 runs sampled)  hitratio 100% 1 /3998562
-memoize-state   x         3389800 ops/sec ±1.51% (6 runs sampled)  hitratio 100% 1 /5243823
+base            x           10426 ops/sec ±3.01% (6 runs sampled)  hitratio 0% 3712 /3712
+memoize-one     x        24164455 ops/sec ±6.67% (6 runs sampled)  hitratio 100% 1 /15190474
+lodash.memoize  x         2826340 ops/sec ±3.44% (6 runs sampled)  hitratio 100% 1 /16624930
+fast-memoize    x         1070852 ops/sec ±2.70% (6 runs sampled)  hitratio 100% 1 /17155394
+memoize-state   x         4966459 ops/sec ±1.13% (5 runs sampled)  hitratio 100% 1 /19324311
 Fastest is memoize-one
 
 function of 3 arguments, all changed / 10
-memoize-one     x           19043 ops/sec ±1.15% (6 runs sampled)  hitratio 50% 4083 /8163
-lodash.memoize  x           30242 ops/sec ±1.45% (5 runs sampled)  hitratio 79% 6114 /28541
-fast-memoize    x           17442 ops/sec ±0.78% (6 runs sampled)  hitratio 92% 2891 /34322
-memoize-state   x           16621 ops/sec ±2.16% (6 runs sampled)  hitratio 92% 3225 /40772
+base            x           10189 ops/sec ±3.13% (6 runs sampled)  hitratio 0% 3657 /3657
+memoize-one     x           19842 ops/sec ±2.73% (6 runs sampled)  hitratio 63% 5316 /14288
+lodash.memoize  x           33160 ops/sec ±1.45% (5 runs sampled)  hitratio 83% 5782 /33561
+fast-memoize    x           19029 ops/sec ±6.04% (5 runs sampled)  hitratio 86% 6731 /47024
+memoize-state   x           18527 ops/sec ±10.56% (5 runs sampled)  hitratio 93% 3868 /54760
 Fastest is lodash.memoize
 
 function with an object as argument, returning a part
-memoize-one     x            8822 ops/sec ±1.39% (5 runs sampled)  hitratio 0% 4337 /4337
-lodash.memoize  x         1378671 ops/sec ±8.92% (6 runs sampled)  hitratio 100% 1 /669631
-fast-memoize    x         1027750 ops/sec ±6.03% (6 runs sampled)  hitratio 100% 1 /1246719
-memoize-state   x         1207975 ops/sec ±2.08% (6 runs sampled)  hitratio 100% 1 /1805336
+base            x           10095 ops/sec ±3.49% (5 runs sampled)  hitratio 0% 4107 /4107
+memoize-one     x           10054 ops/sec ±3.14% (6 runs sampled)  hitratio 50% 4141 /8249
+lodash.memoize  x         1695449 ops/sec ±3.68% (6 runs sampled)  hitratio 100% 1 /950379
+fast-memoize    x         1287216 ops/sec ±1.29% (6 runs sampled)  hitratio 100% 1 /1590863
+memoize-state   x         1574688 ops/sec ±2.24% (6 runs sampled)  hitratio 100% 1 /2469327
 Fastest is lodash.memoize
 
 function with an object as argument, changing value, returning a part
-memoize-one     x            8236 ops/sec ±1.54% (6 runs sampled)  hitratio 0% 4112 /4112
-lodash.memoize  x           74548 ops/sec ±4.14% (6 runs sampled)  hitratio 91% 4106 /45160
-fast-memoize    x           71851 ops/sec ±2.60% (6 runs sampled)  hitratio 96% 3524 /80393
-memoize-state   x           61650 ops/sec ±1.28% (6 runs sampled)  hitratio 98% 2632 /106706
-Fastest is lodash.memoize,fast-memoize
+base            x           10187 ops/sec ±1.66% (6 runs sampled)  hitratio 0% 4179 /4179
+memoize-one     x           10205 ops/sec ±3.96% (6 runs sampled)  hitratio 50% 4174 /8354
+lodash.memoize  x           87943 ops/sec ±12.70% (5 runs sampled)  hitratio 92% 4138 /49727
+fast-memoize    x           90510 ops/sec ±1.05% (6 runs sampled)  hitratio 96% 3972 /89439
+memoize-state   x           76372 ops/sec ±6.67% (6 runs sampled)  hitratio 97% 3612 /125554
+Fastest is fast-memoize,lodash.memoize
 
 function with an object as argument, changing other value, returning a part
-memoize-one     x            7683 ops/sec ±1.78% (6 runs sampled)  hitratio 0% 3488 /3488
-lodash.memoize  x           69976 ops/sec ±2.08% (6 runs sampled)  hitratio 91% 3086 /34339
-fast-memoize    x           66844 ops/sec ±2.26% (6 runs sampled)  hitratio 96% 2308 /57408
-memoize-state   x         1085455 ops/sec ±2.39% (6 runs sampled)  hitratio 100% 1 /399267
+base            x            9867 ops/sec ±7.72% (5 runs sampled)  hitratio 0% 4537 /4537
+memoize-one     x           10066 ops/sec ±4.24% (5 runs sampled)  hitratio 47% 5059 /9597
+lodash.memoize  x           92596 ops/sec ±0.61% (6 runs sampled)  hitratio 92% 4515 /54745
+fast-memoize    x           89224 ops/sec ±1.24% (5 runs sampled)  hitratio 96% 3445 /89181
+memoize-state   x         1469865 ops/sec ±2.95% (5 runs sampled)  hitratio 100% 1 /805990
 Fastest is memoize-state
 
 function with 2 objects as argument, changing both value
-memoize-one     x            7251 ops/sec ±7.62% (6 runs sampled)  hitratio 0% 3263 /3263
-lodash.memoize  x            7255 ops/sec ±3.94% (5 runs sampled)  hitratio 56% 2591 /5855
-fast-memoize    x            7197 ops/sec ±2.57% (6 runs sampled)  hitratio 64% 3341 /9197
-memoize-state   x           45612 ops/sec ±5.28% (6 runs sampled)  hitratio 94% 1487 /24063
+base            x           10127 ops/sec ±2.21% (5 runs sampled)  hitratio 0% 5489 /5489
+memoize-one     x           10030 ops/sec ±3.97% (6 runs sampled)  hitratio 60% 3702 /9192
+lodash.memoize  x            9745 ops/sec ±4.69% (6 runs sampled)  hitratio 70% 3997 /13190
+fast-memoize    x            9268 ops/sec ±5.04% (5 runs sampled)  hitratio 77% 3855 /17046
+memoize-state   x           63493 ops/sec ±6.49% (6 runs sampled)  hitratio 94% 2736 /44395
 Fastest is memoize-state
 
 when changes anything, except the function gonna to consume
-memoize-one     x            8003 ops/sec ±0.99% (5 runs sampled)  hitratio 0% 3453 /3453
-lodash.memoize  x            7640 ops/sec ±2.47% (6 runs sampled)  hitratio 50% 3490 /6944
-fast-memoize    x            7315 ops/sec ±1.38% (5 runs sampled)  hitratio 73% 2576 /9521
-memoize-state   x          461062 ops/sec ±37.16% (6 runs sampled)  hitratio 100% 1 /270082
+base            x            9901 ops/sec ±3.78% (6 runs sampled)  hitratio 0% 5121 /5121
+memoize-one     x           10087 ops/sec ±2.59% (6 runs sampled)  hitratio 57% 3914 /9036
+lodash.memoize  x            9643 ops/sec ±1.25% (6 runs sampled)  hitratio 67% 4361 /13398
+fast-memoize    x            9554 ops/sec ±1.13% (6 runs sampled)  hitratio 76% 4228 /17627
+memoize-state   x          520442 ops/sec ±1.54% (5 runs sampled)  hitratio 100% 1 /270727
 Fastest is memoize-state
 
 when state is very big, and you need a small part
-memoize-one     x            7713 ops/sec ±2.21% (6 runs sampled)  hitratio 0% 3518 /3518
-lodash.memoize  x             198 ops/sec ±2.48% (6 runs sampled)  hitratio 100% 10 /3613
-fast-memoize    x             201 ops/sec ±1.54% (6 runs sampled)  hitratio 100% 9 /3688
-memoize-state   x           61350 ops/sec ±2.49% (6 runs sampled)  hitratio 91% 3072 /34404
+base            x           10097 ops/sec ±1.63% (6 runs sampled)  hitratio 0% 4428 /4428
+memoize-one     x            9262 ops/sec ±6.27% (5 runs sampled)  hitratio 53% 3974 /8403
+lodash.memoize  x             276 ops/sec ±3.31% (6 runs sampled)  hitratio 100% 12 /8516
+fast-memoize    x             280 ops/sec ±4.77% (6 runs sampled)  hitratio 100% 10 /8615
+memoize-state   x           83005 ops/sec ±6.47% (6 runs sampled)  hitratio 92% 4042 /49019
 Fastest is memoize-state
 ``` 
 
