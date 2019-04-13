@@ -5632,6 +5632,15 @@ proxyequal@^2.0.4:
     crc-32 "^1.2.0"
     search-trie "^1.1.0"
 
+proxyequal@^2.0.6:
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/proxyequal/-/proxyequal-2.0.6.tgz#5d49c1bb165c93c41e4414e587ad0414e8a26cf3"
+  integrity sha512-4GkhdV+ZsR/X/4tVpC8g10wGRmc6eafaPkAEbnBKtmjF5EhwHE6MvkJHQWdtQ6NhX3dayc5f7xPG69kRouJLuw==
+  dependencies:
+    crc-32 "^1.2.0"
+    proxyequal "^2.0.4"
+    search-trie "^1.1.0"
+
 prr@~1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/prr/-/prr-1.0.1.tgz#d3fc114ba06995a45ec6893f484ceb1d78f5f476"

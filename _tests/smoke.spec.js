@@ -578,11 +578,7 @@ describe('memoize-proxy', () => {
       const test3 = shouldBePure(fun3, {isolatedCheck: true});
       test3(A);
       test3(A);
-      expect(test3.isPure).to.be.true;
-      test3([1, 2, 3]);
-      expect(test3.isPure).to.be.true;
-      test3([1, 2, 4]);
-      expect(test3.isPure).to.be.true;
+      expect(test3.isPure).to.be.false;
     });
 
     it('pure memoization', () => {
