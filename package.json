@@ -40,7 +40,7 @@
     "lodash.memoize": "^4.1.2",
     "memoize-one": "^5.0.4",
     "mocha": "^5.2.0",
-    "nyc": "^12.0.1",
+    "nyc": "^14.0.0",
     "proxy-polyfill": "^0.3.0",
     "sinon": "^5.0.10",
     "size-limit": "^0.21.1"
