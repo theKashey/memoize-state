@@ -43,7 +43,7 @@
     "nyc": "^12.0.1",
     "proxy-polyfill": "^0.3.0",
     "sinon": "^5.0.10",
-    "size-limit": "^0.21.1"
+    "size-limit": "^1.3.3"
   },
   "repository": {
     "type": "git",
