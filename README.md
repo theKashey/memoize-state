@@ -5,6 +5,8 @@ memoize-state
 [![CircleCI status](https://img.shields.io/circleci/project/github/theKashey/memoize-state/master.svg?style=flat-square)](https://circleci.com/gh/theKashey/memoize-state/tree/master)
 [![coverage-badge](https://img.shields.io/codecov/c/github/thekashey/memoize-state.svg?style=flat-square)](https://codecov.io/github/thekashey/memoize-state)
 [![version-badge](https://img.shields.io/npm/v/memoize-state.svg?style=flat-square)](https://www.npmjs.com/package/memoize-state)
+[![npm downloads](https://img.shields.io/npm/dm/memoize-state.svg)](https://www.npmjs.com/package/react-focus-on)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/memoize-state.svg)](https://bundlephobia.com/result?p=react-focus-on)
 [![Greenkeeper badge](https://badges.greenkeeper.io/theKashey/memoize-state.svg)](https://greenkeeper.io/)
 
 
@@ -45,6 +47,8 @@ Now you able just to write functions AS YOU WANT. Memoize-state will detect all 
 ## Implementations
 - [React-memoize](https://github.com/theKashey/react-memoize) - magic memoization for React, componentWillReceiveProps optization, selection from context, whole SFC memoization.
 - [beautiful-react-redux](https://github.com/theKashey/beautiful-react-redux) - instant memoization for React-Redux
+- [why-did-you-update-redux](https://github.com/theKashey/why-did-you-update-reduxx) - selector quiality checker
+- [react-tracked](https://github.com/dai-shi/react-tracked) - React Context API made using the same principles.
 - your project!  
 
 # API
