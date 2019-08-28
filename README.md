@@ -12,7 +12,7 @@ memoize-state
 >Caching (aka memoization) is very powerful optimization technique - however it only makes sense when maintaining the cache itself and looking up cached results is cheaper than performing computation itself again.
 [You don't need WASM to speed up JS](http://mrale.ph/blog/2018/02/03/maybe-you-dont-need-rust-to-speed-up-your-js.html)
 
-
+Read me - [How I wrote the world’s fastest memoization library](https://dev.to/thekashey/how-i-wrote-the-world-s-fastest-memoization-library-34io)
 
 __Reselect__? Memoize-one? Most of memoization libraries remembers the parameters you provided, not what you did inside. 
 Sometimes is not easy to achive high cache hit ratio. Sometimes you have to _think_ about how to properly dissolve computation into the _memoizable_ parts.
