@@ -30,7 +30,7 @@ export const shallBePure = (fnCall, {
     }
     lastResult = fresult;
     lastMemoizedResult = mresult;
-    return fresult;
+    return mresult;
   }
 
   return functionDouble(functor, fnCall);
