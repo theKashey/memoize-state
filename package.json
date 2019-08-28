@@ -2,16 +2,20 @@
   "name": "memoize-state",
   "version": "2.0.7",
   "description": "A magic memoization function",
-  "main": "lib/index.js",
+  "main": "dist/es5/index.js",
+  "jsnext:main": "dist/es2015/index.js",
+  "module": "dist/es2015/index.js",
   "types": "memoize-state.d.ts",
   "scripts": {
     "test": "npm run test:pick -- '_tests/**/*spec.js'",
     "test:perf": "npm run test:pick -- '_tests/**/*perf.js'",
     "test:report": "nyc report --reporter=text-lcov > coverage.lcov",
-    "test:cov": "BABEL_ENV=cjs nyc mocha --compilers js:babel-core/register --report lcovonly -- '_tests/**/*spec.js'",
+    "test:cov": "BABEL_ENV=cjs nyc mocha --compilers js:@babel/register --report lcovonly -- '_tests/**/*spec.js'",
     "test:ci": "npm run test:cov && npm run test:report",
-    "test:pick": "BABEL_ENV=cjs mocha --compilers js:babel-core/register",
-    "build": "babel src -d lib",
+    "test:pick": "BABEL_ENV=cjs mocha --compilers js:@babel/register",
+    "build:cjs": "NODE_ENV=cjs babel src -d dist/es5",
+    "build:es5": "NODE_ENV=es2015 babel src -d dist/es2015",
+    "build": "rm -Rf ./dist && yarn build:es5 && yarn build:cjs",
     "prepublish": "npm run build",
     "lint": "eslint src tests",
     "lint:fix": "eslint src tests --fix",
@@ -28,10 +32,10 @@
   "author": "Anton Korzunov (thekashey@gmail.com)",
   "license": "MIT",
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-eslint": "^8.2.1",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/register": "^7.5.5",
     "benchmark": "^2.1.4",
     "chai": "^4.1.2",
     "codecov": "^3.0.2",
@@ -55,6 +59,6 @@
   "homepage": "https://github.com/theKashey/memoize-state#readme",
   "dependencies": {
     "function-double": "^1.0.4",
-    "proxyequal": "^2.0.6"
+    "proxyequal": "^2.0.9"
   }
 }
