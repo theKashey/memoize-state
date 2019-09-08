@@ -26,7 +26,20 @@ let shouldDive = (line, key, object) => (
   typeof line === 'object' && (isProxyfied(line) || userShouldDive(line, key, object))
 );
 
+function forEachIn(obj, iterator) {
+  if (Array.isArray(obj)) {
+    obj.forEach((_, index) => iterator(index));
+  }
+  Object.keys(obj).forEach(iterator);
+}
+
 function deproxifyResult(callGeneration, result, affected, returnPureValue, deepDive = false) {
+  const unaffectedResult = returnPureValue ? result : nothing;
+
+  if (!result) {
+    return result;
+  }
+
   const isInProxy = isProxyfied(result);
   if (isInProxy) {
     if (addAffected(callGeneration, affected, result)) {
@@ -48,7 +61,7 @@ function deproxifyResult(callGeneration, result, affected, returnPureValue, deep
       });
     }
 
-    Object.keys(result).forEach( i => {
+    forEachIn(result, i => {
         const data = result[i];
         let newResult = data;
         if (data && shouldDive(data, i, result)) {
@@ -76,10 +89,10 @@ function deproxifyResult(callGeneration, result, affected, returnPureValue, deep
     if (altered) {
       return sub;
     }
-    return returnPureValue ? result : nothing;
+    return unaffectedResult;
   }
 
-  return returnPureValue ? result : nothing;
+  return unaffectedResult;
 }
 
 export function callIn(that, cache, args, func, memoizationDepth, proxyMap = [], options = {}) {

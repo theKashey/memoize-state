@@ -94,6 +94,21 @@ describe('memoize-proxy', () => {
     expect(mm(state1)).to.be.deep.equal({a: 1, state: 1, callCount: 2});
   });
 
+  it('memoization of null', () => {
+    let callCount = 0;
+    const mapStateToProps = (state) => {
+      const notUsed = {
+        a: state.a,
+        state: state.a,
+        callCount: callCount++
+      };
+      return null;
+    };
+
+    const mm = memoize(mapStateToProps);
+    expect(mm({a: 1})).to.equal(null);
+  });
+
   it('memoize twice shadowing', () => {
 
     const mapStateToProps = (state, props) => state.a[0].b.c + state.a[1].b.c + props.value;
