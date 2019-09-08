@@ -34,7 +34,7 @@ const defaultShouldDiveCheck = (line, key, object) => {
   }
 
   // could not ACCESS XMLHttpRequest
-  if (line.constructor === XMLHttpRequest) {
+  if (global.XMLHttpRequest && line.constructor === global.XMLHttpRequest) {
     return false;
   }
 
