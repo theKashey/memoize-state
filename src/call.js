@@ -2,6 +2,7 @@ import {
   proxyState,
   deproxify,
   isProxyfied,
+  isKnownObject,
   getProxyKey
 } from 'proxyequal';
 import {updateCacheLine} from './cache';
@@ -20,10 +21,33 @@ function addAffected(callGeneration, affected, object) {
 
 let cycleMap = null;
 let userShouldDive = null;
-const returnTrue = () => true;
+
+
+const defaultShouldDiveCheck = (line, key, object) => {
+  // default check - is not React owner
+  if (key === '_owner' && object.$$typeof) {
+    // React-specific: avoid traversing React elements' _owner.
+    //  _owner contains circular references
+    // and is not needed when comparing the actual elements (and not their owners)
+    // .$$typeof and ._store on just reasonable markers of a react element
+    return true;
+  }
+
+  // could not ACCESS XMLHttpRequest
+  if (line.constructor === XMLHttpRequest) {
+    return false;
+  }
+
+  return true;
+};
 
 let shouldDive = (line, key, object) => (
-  typeof line === 'object' && (isProxyfied(line) || userShouldDive(line, key, object))
+  typeof line === 'object' &&
+  !isKnownObject(line) &&
+  (
+    isProxyfied(line) ||
+    userShouldDive(line, key, object, defaultShouldDiveCheck)
+  )
 );
 
 function forEachIn(obj, iterator) {
@@ -65,16 +89,12 @@ function deproxifyResult(callGeneration, result, affected, returnPureValue, deep
         const data = result[i];
         let newResult = data;
         if (data && shouldDive(data, i, result)) {
-          if (typeof data === 'object') {
-            if (!cycleMap.has(data)) {
-              cycleMap.set(data, nothing);
-              newResult = deproxifyResult(callGeneration, data, affected, false, deepDive);
-              cycleMap.set(data, newResult);
-            } else {
-              newResult = cycleMap.get(data)
-            }
-          } else {
+          if (!cycleMap.has(data)) {
+            cycleMap.set(data, nothing);
             newResult = deproxifyResult(callGeneration, data, affected, false, deepDive);
+            cycleMap.set(data, newResult);
+          } else {
+            newResult = cycleMap.get(data)
           }
         }
         if (data && newResult !== nothing && newResult !== data) {
@@ -131,7 +151,7 @@ export function callIn(that, cache, args, func, memoizationDepth, proxyMap = [],
     });
 
   cycleMap = new WeakMap();
-  userShouldDive = options.deproxifyShouldDive || returnTrue;
+  userShouldDive = options.deproxifyShouldDive || defaultShouldDiveCheck;
   const result = deproxifyResult(proxyMap, preResult, affected, true);
   const cacheLine = {args, affected, result, callArgs};
   if (cache.length < memoizationDepth) {
