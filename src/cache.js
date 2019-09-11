@@ -13,7 +13,7 @@ export function updateCacheLine(cache, lineId, value) {
 export function shallowEqualHit(cache, args) {
   for (let i = 0; i < cache.length; ++i) {
     let found = cache[i];
-    const {args: lineArgs, affected: lineAffected, result: lineValue} = found;
+    const {args: lineArgs, affected: lineAffected} = found;
 
     if (args.length !== lineArgs.length) {
       continue;
@@ -39,7 +39,7 @@ export function shallowEqualHit(cache, args) {
     }
     if (found) {
       updateCacheLine(cache, i, found);
-      return lineValue;
+      return found;
     }
   }
   return undefined;

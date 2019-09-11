@@ -45,11 +45,11 @@ export function memoize(func, _options = {}) {
       return func.call(this, ...args);
     }
 
-    let result = (shallowEqualHit(cache, args));
+    const found = (shallowEqualHit(cache, args));
 
-    lastCallWasMemoized = Boolean(result);
+    lastCallWasMemoized = Boolean(found);
 
-    if (!result) {
+    if (!found) {
       let safeCache;
       if (options.safe && !resultSafeChecked) {
         resultSafeChecked = true;
@@ -57,7 +57,7 @@ export function memoize(func, _options = {}) {
       }
 
       cacheMiss++;
-      result = callIn(this, cache, args, func, options.cacheSize, proxyMap, options.flags);
+      const result = callIn(this, cache, args, func, options.cacheSize, proxyMap, options.flags);
       executeTimes++;
 
       if (safeCache) {
@@ -65,11 +65,11 @@ export function memoize(func, _options = {}) {
       }
       // test for internal memoization
 
+      return result;
     } else {
       cacheHit++;
+      return found.result;
     }
-
-    return result;
   }
 
   const memoizedFunction = functionDouble(functor, func, {
