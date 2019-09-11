@@ -7,7 +7,7 @@ import {
 } from 'proxyequal';
 import {updateCacheLine} from './cache';
 
-const nothing = 'PROXY_EQUAL_NOTHING';
+const nothing = {is: 'PROXY_EQUAL_NOTHING'};
 const emptyArray = [];
 
 function addAffected(callGeneration, affected, object) {
@@ -21,6 +21,7 @@ function addAffected(callGeneration, affected, object) {
 
 let cycleMap = null;
 let userShouldDive = null;
+const knownPOD = new WeakSet();
 
 
 const defaultShouldDiveCheck = (line, key, object) => {
@@ -30,7 +31,7 @@ const defaultShouldDiveCheck = (line, key, object) => {
     //  _owner contains circular references
     // and is not needed when comparing the actual elements (and not their owners)
     // .$$typeof and ._store on just reasonable markers of a react element
-    return true;
+    return false;
   }
 
   // could not ACCESS XMLHttpRequest
@@ -43,6 +44,7 @@ const defaultShouldDiveCheck = (line, key, object) => {
 
 let shouldDive = (line, key, object) => (
   typeof line === 'object' &&
+  // !knownPOD.has(line) &&
   !isKnownObject(line) &&
   (
     isProxyfied(line) ||
@@ -64,16 +66,22 @@ function deproxifyResult(callGeneration, result, affected, returnPureValue, deep
     return result;
   }
 
-  const isInProxy = isProxyfied(result);
-  if (isInProxy) {
-    if (addAffected(callGeneration, affected, result)) {
-      const preResult = deproxify(result);
-      //return preResult;
-      return deepDive ? preResult : deproxifyResult(callGeneration, preResult, affected, true, true);
-    }
-  }
-
   if (typeof result === 'object') {
+    if (knownPOD.has(result)) {
+      return unaffectedResult;
+    }
+
+    const isInProxy = isProxyfied(result);
+    if (isInProxy) {
+      if (addAffected(callGeneration, affected, result)) {
+        const preResult = deproxify(result);
+
+        return deepDive
+          ? preResult
+          : deproxifyResult(callGeneration, preResult, affected, true, true);
+      }
+    }
+
     const sub = Array.isArray(result) ? [] : {};
     let altered = false;
 
@@ -93,6 +101,7 @@ function deproxifyResult(callGeneration, result, affected, returnPureValue, deep
             cycleMap.set(data, nothing);
             newResult = deproxifyResult(callGeneration, data, affected, false, deepDive);
             cycleMap.set(data, newResult);
+            // knownPOD.add(newResult === nothing ? data : newResult);
           } else {
             newResult = cycleMap.get(data)
           }
@@ -109,6 +118,7 @@ function deproxifyResult(callGeneration, result, affected, returnPureValue, deep
     if (altered) {
       return sub;
     }
+    knownPOD.add(result);
     return unaffectedResult;
   }
 
