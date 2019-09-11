@@ -109,6 +109,21 @@ describe('memoize-proxy', () => {
     expect(mm({a: 1})).to.equal(null);
   });
 
+  it('memoization of undefined', () => {
+    const f = (obj) => 'value' in obj && obj.value ? obj.value : undefined;
+    const memoized = memoize(f);
+
+    memoized({ value: 1, other: 1 });
+    memoized({ value: 1, other: 2 });
+    expect(memoized.cacheStatistics.cacheHit).to.be.equal(1);
+    expect(memoized.cacheStatistics.cacheMiss).to.be.equal(1);
+
+    memoized({ value: false, other: 1 });
+    memoized({ value: false, other: 2 });
+    expect(memoized.cacheStatistics.cacheHit).to.be.equal(2);
+    expect(memoized.cacheStatistics.cacheMiss).to.be.equal(2);
+  })
+
   it('memoize twice shadowing', () => {
 
     const mapStateToProps = (state, props) => state.a[0].b.c + state.a[1].b.c + props.value;
@@ -628,7 +643,7 @@ describe('memoize-proxy', () => {
         if (autoCache) {
           cache = result
         }
-        return cache;
+        return result;
       };
 
       const test = shouldBePure(fun);
@@ -640,6 +655,7 @@ describe('memoize-proxy', () => {
       test({a: A});  // undetectable
       expect(test.isPure).to.be.true;
       // memozation broken
+
       expect(test({a: A})).to.be.equal(A);
       expect(test({a: 1})).to.be.equal(A);
       expect(test({a: 2})).to.be.equal(A);
