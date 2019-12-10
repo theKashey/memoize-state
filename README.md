@@ -23,13 +23,13 @@ Sometimes is not easy to achive high cache hit ratio. Sometimes you have to _thi
 
 **I don't want to think how to use memoization, I want to use memoization!**
 
-Memoize-state is built to memoize more complex situations, even the ones which are faster to recomoute, than to deside that recalculation is not needed.
+Memoize-state is built to memoize more complex situations, even the ones which are faster to recompute, than to deside that recalculation is not needed.
 Just because one cheap computation can cause a redraw/reflow/recomputation cascade for a whole application.
 
 Lets imagine some complex function.
 ```js
  const fn = memoize(
-   (number, state, string) => ({result:state[string].value + number})
+   (number, state, string) => ({result: state[string] + number})
  )
 let firstValue = fn(1, { value: 1, otherValue   : 1 }, 'value'); // first call
   firstValue === fn(1, { value: 1, otherValue   : 2 }, 'value'); // "nothing" changed
@@ -40,7 +40,7 @@ All _ordinal_ memoization libraries will drop cache each time, as long `state` i
 More of it - they will return a unique object each time, as long the function is returning a new object each time.
 But not today!
 
-Memoize-state memoizes tracks used __state__ parts, using the same __magic__, as you can found in __MobX__ or __immer__.
+Memoize-state memoizes tracks used __state__ parts, using the same __magic__, as you can find in __MobX__ or __immer__.
 It will know, that it should react only on some `state.value1` change, but not `value2`. _Perfect_.
 
 Now you able just to write functions AS YOU WANT. Memoize-state will detect all _really_ used arguments, variables and keys, and then - react only to the _right_ changes.
