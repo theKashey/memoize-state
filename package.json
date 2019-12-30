@@ -47,7 +47,7 @@
     "mocha": "^5.2.0",
     "nyc": "^12.0.1",
     "proxy-polyfill": "^0.3.0",
-    "sinon": "^5.0.10",
+    "sinon": "^8.0.2",
     "size-limit": "^0.21.1"
   },
   "repository": {
