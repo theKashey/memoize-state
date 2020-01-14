@@ -48,7 +48,7 @@ Now you able just to write functions AS YOU WANT. Memoize-state will detect all 
 [![NPM](https://nodei.co/npm/memoize-state.png?downloads=true&stars=true)](https://nodei.co/npm/memoize-state/) 
 
 ## Implementations
-- [React-memoize](https://github.com/theKashey/react-memoize) - magic memoization for React, componentWillReceiveProps optization, selection from context, whole SFC memoization.
+- [React-memoize](https://github.com/theKashey/react-memoize) - magic memoization for React, componentWillReceiveProps optimization, selection from context, whole SFC memoization.
 - [beautiful-react-redux](https://github.com/theKashey/beautiful-react-redux) - instant memoization for React-Redux
 - [why-did-you-update-redux](https://github.com/theKashey/why-did-you-update-reduxx) - selector quiality checker
 - [react-tracked](https://github.com/dai-shi/react-tracked) - React Context API made using the same principles.
