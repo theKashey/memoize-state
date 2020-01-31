@@ -10,27 +10,27 @@ declare module 'memoize-state' {
          * allow shallow arguments check
          * @default true
          */
-        shallowCheck: boolean,
+        shallowCheck?: boolean,
         /**
          * allow equal argiments check
          * @default true
          */
-        equalCheck: boolean,
+        equalCheck?: boolean,
         /**
          * respond only to the "used" amount of arguments (not working with spread)
          * @default false
          */
-        strictArity: boolean,
+        strictArity?: boolean,
         /**
          * maintain the equal object equality
          * @default true
          */
-        nestedEquality: boolean,
+        nestedEquality?: boolean,
         /**
          * perform additional safe checks (this could produce cache-wiping side effect)
          * @default false
          */
-        safe: boolean
+        safe?: boolean
     }
 
     interface PureOptions {
