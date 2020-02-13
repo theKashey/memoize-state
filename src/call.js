@@ -44,7 +44,6 @@ const defaultShouldDiveCheck = (line, key, object) => {
 
 let shouldDive = (line, key, object) => (
   typeof line === 'object' &&
-  // !knownPOD.has(line) &&
   !isKnownObject(line) &&
   (
     isProxyfied(line) ||
@@ -101,7 +100,6 @@ function deproxifyResult(callGeneration, result, affected, returnPureValue, deep
             cycleMap.set(data, nothing);
             newResult = deproxifyResult(callGeneration, data, affected, false, deepDive);
             cycleMap.set(data, newResult);
-            // knownPOD.add(newResult === nothing ? data : newResult);
           } else {
             newResult = cycleMap.get(data)
           }
