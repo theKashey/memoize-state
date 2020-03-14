@@ -1,6 +1,6 @@
 {
   "name": "memoize-state",
-  "version": "2.0.14",
+  "version": "2.0.15",
   "description": "A magic memoization function",
   "main": "dist/es5/index.js",
   "jsnext:main": "dist/es2015/index.js",
