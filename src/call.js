@@ -21,7 +21,7 @@ function addAffected(callGeneration, affected, object) {
 
 let cycleMap = null;
 let userShouldDive = null;
-const knownPOD = new WeakSet();
+const knownPOD = new WeakMap();
 
 
 const defaultShouldDiveCheck = (line, key, object) => {
@@ -66,7 +66,7 @@ function deproxifyResult(callGeneration, result, affected, returnPureValue, deep
   }
 
   if (typeof result === 'object') {
-    if (knownPOD.has(result)) {
+    if (knownPOD.get(result)) {
       return unaffectedResult;
     }
 
@@ -116,7 +116,7 @@ function deproxifyResult(callGeneration, result, affected, returnPureValue, deep
     if (altered) {
       return sub;
     }
-    knownPOD.add(result);
+    knownPOD.set(result, true);
     return unaffectedResult;
   }
 
