@@ -50,7 +50,7 @@ Now you able just to write functions AS YOU WANT. Memoize-state will detect all 
 ## Implementations
 - [React-memoize](https://github.com/theKashey/react-memoize) - magic memoization for React, componentWillReceiveProps optimization, selection from context, whole SFC memoization.
 - [beautiful-react-redux](https://github.com/theKashey/beautiful-react-redux) - instant memoization for React-Redux
-- [why-did-you-update-redux](https://github.com/theKashey/why-did-you-update-reduxx) - selector quiality checker
+- [why-did-you-update-redux](https://github.com/theKashey/why-did-you-update-redux) - selector quiality checker
 - [react-tracked](https://github.com/dai-shi/react-tracked) - React Context API made using the same principles.
 - your project!  
 
