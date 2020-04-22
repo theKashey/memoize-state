@@ -5607,10 +5607,10 @@ proxy-polyfill@^0.3.0:
   resolved "https://registry.yarnpkg.com/proxy-polyfill/-/proxy-polyfill-0.3.0.tgz#385c13d1402d4ae1357b6e44652d9b8d6289b0ef"
   integrity sha512-0HN+SoV3qKJ1EIIOsEybYgyTTnR26PJ0af/shBqaXLUMIg7/8PHEyQ28QfaDFwmvH77yRuLtclnERgrCq4v+xg==
 
-proxyequal@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/proxyequal/-/proxyequal-2.1.0.tgz#2087b1c36ab9ff97df59d439a5c57daa5e745fb0"
-  integrity sha512-wscjBuHUXrh4Y6b4FF9qjHLG9qyBaoxKkMF6+9kO2rsVI/l4A2WGpx3z8nBqVC6Ud7XlpPppchieVhrU3W0hOw==
+proxyequal@^2.1.3:
+  version "2.1.3"
+  resolved "https://registry.yarnpkg.com/proxyequal/-/proxyequal-2.1.3.tgz#5baffcb7fdcaecd4443306f53ffa9a129201191c"
+  integrity sha512-3hE0j1kh0Dy8hiZJXZ9dNVqkyjZtZfBg9qKCRckfu4aKSEkQ048NMhMh/DFShf0FO+9QHQnbPYEwDq3mQWGfhg==
   dependencies:
     crc-32 "^1.2.0"
     search-trie "^1.1.0"
