@@ -44,7 +44,7 @@
     "fast-memoize": "^2.3.0",
     "lodash.memoize": "^4.1.2",
     "memoize-one": "^5.0.4",
-    "mocha": "^5.2.0",
+    "mocha": "^7.2.0",
     "nyc": "^12.0.1",
     "proxy-polyfill": "^0.3.0",
     "sinon": "^5.0.10",
